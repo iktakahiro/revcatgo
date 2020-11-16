@@ -16,8 +16,8 @@ func TestNewMilliSeconds(t *testing.T) {
 		expected time.Time
 		err      error
 	}{
-		{1605526568000, time.Unix(0, 1605526568000/1000), nil},
-		{1605526568, time.Unix(0, 1605526568000/1000), errors.New("milliseconds should be grater than 946684800000")},
+		{1605526568000, time.Unix(0, 1605526568000*1000), nil},
+		{1605526568, time.Unix(0, 1605526568000*1000), errors.New("milliseconds should be grater than 946684800000")},
 		{0, time.Unix(0, 0), nil},
 	}
 
