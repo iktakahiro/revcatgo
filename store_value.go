@@ -13,19 +13,19 @@ type store struct {
 }
 
 const (
-	storePlayStore   = "PLAY_STORE"
-	storeAppStore    = "APP_STORE"
-	storeStripe      = "STRIPE"
-	storeMacAppStore = "MAC_APP_STORE"
-	storePromotional = "PROMOTIONAL"
+	StorePlayStore   = "PLAY_STORE"
+	StoreAppStore    = "APP_STORE"
+	StoreStripe      = "STRIPE"
+	StoreMacAppStore = "MAC_APP_STORE"
+	StorePromotional = "PROMOTIONAL"
 )
 
 var validStoreValues = []string{
-	storePlayStore,
-	storeAppStore,
-	storeStripe,
-	storeMacAppStore,
-	storePromotional,
+	StorePlayStore,
+	StoreAppStore,
+	StoreStripe,
+	StoreMacAppStore,
+	StorePromotional,
 }
 
 func newStore(s string) (*store, error) {

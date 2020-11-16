@@ -9,27 +9,27 @@ import (
 )
 
 const (
-	eventTypeTest                = "TEST"
-	eventTypeInitialPurchase     = "INITIAL_PURCHASE"
-	eventTypeNonRenewingPurchase = "NON_RENEWING_PURCHASE"
-	eventTypeRenewal             = "RENEWAL"
-	eventTypeProductChange       = "PRODUCT_CHANGE"
-	eventTypeChancellation       = "CANCELLATION"
-	eventTypeBillingIssue        = "BILLING_ISSUE"
-	eventTypeSubscriberAlias     = "SUBSCRIBER_ALIAS"
-	eventTypeSubscriptionPaused  = "SUBSCRIPTION_PAUSED"
+	EventTypeTest                = "TEST"
+	EventTypeInitialPurchase     = "INITIAL_PURCHASE"
+	EventTypeNonRenewingPurchase = "NON_RENEWING_PURCHASE"
+	EventTypeRenewal             = "RENEWAL"
+	EventTypeProductChange       = "PRODUCT_CHANGE"
+	EventTypeChancellation       = "CANCELLATION"
+	EventTypeBillingIssue        = "BILLING_ISSUE"
+	EventTypeSubscriberAlias     = "SUBSCRIBER_ALIAS"
+	EventTypeSubscriptionPaused  = "SUBSCRIPTION_PAUSED"
 )
 
 var validEventTypeValues = []string{
-	eventTypeTest,
-	eventTypeInitialPurchase,
-	eventTypeNonRenewingPurchase,
-	eventTypeRenewal,
-	eventTypeProductChange,
-	eventTypeChancellation,
-	eventTypeBillingIssue,
-	eventTypeSubscriberAlias,
-	eventTypeSubscriptionPaused,
+	EventTypeTest,
+	EventTypeInitialPurchase,
+	EventTypeNonRenewingPurchase,
+	EventTypeRenewal,
+	EventTypeProductChange,
+	EventTypeChancellation,
+	EventTypeBillingIssue,
+	EventTypeSubscriberAlias,
+	EventTypeSubscriptionPaused,
 }
 
 type eventType struct {
