@@ -13,13 +13,13 @@ type environment struct {
 }
 
 const (
-	environmentSandbox    = "SANDBOX"
-	environmentProduction = "PRODUCTION"
+	EnvironmentSandbox    = "SANDBOX"
+	EnvironmentProduction = "PRODUCTION"
 )
 
 var validEnvironmentValues = []string{
-	environmentSandbox,
-	environmentProduction,
+	EnvironmentSandbox,
+	EnvironmentProduction,
 }
 
 func newEnvironment(s string) (*environment, error) {
@@ -34,11 +34,11 @@ func (e environment) String() string {
 }
 
 func (e *environment) IsProduction() bool {
-	return e.value.ValueOrZero() == environmentProduction
+	return e.value.ValueOrZero() == EnvironmentProduction
 }
 
 func (e *environment) IsSandBox() bool {
-	return e.value.ValueOrZero() == environmentSandbox
+	return e.value.ValueOrZero() == EnvironmentSandbox
 }
 
 // MarshalJSON serializes a store to JSON.

@@ -9,17 +9,17 @@ import (
 )
 
 const (
-	periodTypeTrial       = "TRIAL"
-	periodTypeIntro       = "INTRO"
-	periodTypeNormal      = "NORMAL"
-	periodTypePromotional = "PROMOTIONAL"
+	PeriodTypeTrial       = "TRIAL"
+	PeriodTypeIntro       = "INTRO"
+	PeriodTypeNormal      = "NORMAL"
+	PeriodTypePromotional = "PROMOTIONAL"
 )
 
 var validperiodTypeValues = []string{
-	periodTypeTrial,
-	periodTypeIntro,
-	periodTypeNormal,
-	periodTypePromotional,
+	PeriodTypeTrial,
+	PeriodTypeIntro,
+	PeriodTypeNormal,
+	PeriodTypePromotional,
 }
 
 type periodType struct {

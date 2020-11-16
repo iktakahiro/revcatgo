@@ -13,21 +13,21 @@ type cancelReason struct {
 }
 
 const (
-	cancelReasonUnsubscribe        = "UNSUBSCRIBE"
-	cancelReasonBillingError       = "BILLING_ERROR"
-	cancelReasonDeveloperInitiated = "DEVELOPER_INITIATED"
-	cancelReasonPriceIncrease      = "PRICE_INCREASE"
-	cancelReasonCustomerSupport    = "CUSTOMER_SUPPORT"
-	cancelReasonUnknown            = "UNKNOWN"
+	CancelReasonUnsubscribe        = "UNSUBSCRIBE"
+	CancelReasonBillingError       = "BILLING_ERROR"
+	CancelReasonDeveloperInitiated = "DEVELOPER_INITIATED"
+	CancelReasonPriceIncrease      = "PRICE_INCREASE"
+	CancelReasonCustomerSupport    = "CUSTOMER_SUPPORT"
+	CancelReasonUnknown            = "UNKNOWN"
 )
 
 var validcancelReasonValues = []string{
-	cancelReasonUnsubscribe,
-	cancelReasonBillingError,
-	cancelReasonDeveloperInitiated,
-	cancelReasonPriceIncrease,
-	cancelReasonCustomerSupport,
-	cancelReasonUnknown,
+	CancelReasonUnsubscribe,
+	CancelReasonBillingError,
+	CancelReasonDeveloperInitiated,
+	CancelReasonPriceIncrease,
+	CancelReasonCustomerSupport,
+	CancelReasonUnknown,
 }
 
 func newCancelReason(v string) (*cancelReason, error) {
