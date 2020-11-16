@@ -28,7 +28,7 @@ func (m *milliseconds) Int64() int64 {
 }
 
 func (m *milliseconds) String() string {
-	return string(m.Int64())
+	return fmt.Sprint(m.Int64())
 }
 
 func (m *milliseconds) DateTime() time.Time {
