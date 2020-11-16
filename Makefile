@@ -18,4 +18,4 @@ test: deps
 fmt:
 	$(GO_GET) "golang.org/x/tools/cmd/goimports"
 	find . -type f -name '*.go' | xargs $(GO_FORMAT) -s -w -l
-	# find . -type f -name '*.go' | xargs $(GO_IMPORTS) --local github.com/hakali/awarebot -d -e -w
+	find . -type f -name '*.go' | xargs $(GO_IMPORTS) --local github.com/iktakahiro/revcatgo -d -e -w

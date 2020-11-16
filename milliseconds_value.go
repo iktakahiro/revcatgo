@@ -32,7 +32,7 @@ func (m *milliseconds) String() string {
 }
 
 func (m *milliseconds) DateTime() time.Time {
-	return time.Unix(0, m.value.ValueOrZero()/1000)
+	return time.Unix(m.value.ValueOrZero()/1000, 0)
 }
 
 func (m milliseconds) MarshalJSON() ([]byte, error) {

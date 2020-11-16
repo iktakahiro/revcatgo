@@ -1,5 +1,11 @@
 package revcatgo
 
+import (
+	"time"
+
+	"gopkg.in/guregu/null.v4"
+)
+
 // WebhookEvent represents a request body of RevenueCat webhook.
 // https://docs.revenuecat.com/docs/webhooks
 type WebhookEvent struct {
@@ -25,12 +31,12 @@ type Event struct {
 	AutoResumeAt             milliseconds         `json:"auto_resume_at_ms"`
 	Store                    store                `json:"store"`
 	Environment              environment          `json:"environment"`
-	IsTrialConversion        bool                 `json:"is_trial_conversion"`
+	IsTrialConversion        null.Bool            `json:"is_trial_conversion"`
 	CancelReason             cancelReason         `json:"cancel_reason"`
-	NewProductID             cancelReason         `json:"new_product_id"`
+	NewProductID             string               `json:"new_product_id"`
 	PresentedOfferingID      string               `json:"presented_offering_id"`
 	Price                    price                `json:"price"`
-	Currency                 string               `json:"currency"`
+	Currency                 null.String          `json:"currency"`
 	PriceInPurchasedCurrency float32              `json:"price_in_purchased_currency"`
 	TakeHomePercentage       float32              `json:"takehome_percentage"`
 	SubscriberAttributes     subscriberAttributes `json:"subscriber_attributes"`
@@ -38,9 +44,15 @@ type Event struct {
 	OriginalTransactionID    string               `json:"original_transaction_id"`
 }
 
-// GetUserID returns AppUserID.
-func (e *Event) GetUserID() string {
-	return e.AppUserID
+// IsExpired checks whether a subscription is expired or not.
+func (e *Event) IsExpired(grace time.Duration, base *time.Time) bool {
+	var b time.Time
+	if base == nil {
+		b = time.Now()
+	} else {
+		b = *base
+	}
+	return e.ExpirationAt.DateTime().Add(grace).Before(b.UTC())
 }
 
 // SubscriberAttributes represents a map of SubscriberAttribute.
