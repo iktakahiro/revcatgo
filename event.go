@@ -23,7 +23,6 @@ type Event struct {
 	OriginalAppUserID        string               `json:"original_app_user_id"`
 	ProductID                string               `json:"product_id"`
 	EntitlementIDs           []string             `json:"entitlement_ids"`
-	EntitlementID            string               `json:"entitlement_id"`
 	PeriodType               periodType           `json:"period_type"`
 	PurchasedAt              milliseconds         `json:"purchased_at_ms"`
 	GracePeriodExpirationAt  milliseconds         `json:"grace_period_expiration_at_ms"`
@@ -53,6 +52,11 @@ func (e *Event) IsExpired(grace time.Duration, base *time.Time) bool {
 		b = *base
 	}
 	return e.ExpirationAt.DateTime().Add(grace).Before(b.UTC())
+}
+
+// HasEntitlementID checks whether the id exists or not.
+func (e *Event) HasEntitlementID(id string) bool {
+	return contains(e.EntitlementIDs, id)
 }
 
 // SubscriberAttributes represents a map of SubscriberAttribute.
