@@ -98,6 +98,8 @@ func TestUnmarshalInitialPurchaseEvent(t *testing.T) {
 	assert.Equal(t, "$RCAnonymousID:0000000000000000000000000000000b", event.AppUserID)
 	assert.Equal(t, float32(550), event.PriceInPurchasedCurrency)
 	assert.Equal(t, int64(1605256730251), event.ExpirationAt.Int64())
+	assert.True(t, event.HasEntitlementID("premium"))
+	assert.False(t, event.HasEntitlementID("invalid_entitlement_id"))
 }
 
 const cancellationRawJSON = `
