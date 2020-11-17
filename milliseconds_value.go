@@ -12,8 +12,8 @@ type milliseconds struct {
 }
 
 const (
-	// 2000-01-01T00:00:00
-	millisecondsThreshold = 946684800000
+	// 1973-03-03T09:46:40
+	millisecondsThreshold = 100000000
 )
 
 func newMilliseconds(v null.Int) (*milliseconds, error) {
@@ -25,6 +25,10 @@ func newMilliseconds(v null.Int) (*milliseconds, error) {
 
 func (m *milliseconds) Int64() int64 {
 	return m.value.ValueOrZero()
+}
+
+func (m *milliseconds) NullInt() null.Int {
+	return m.value
 }
 
 func (m *milliseconds) String() string {
