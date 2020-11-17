@@ -17,7 +17,7 @@ func TestNewMilliSeconds(t *testing.T) {
 		err      error
 	}{
 		{1605526568000, time.Unix(1605526568000/1000, 0), nil},
-		{1605526568, time.Unix(1605526568000/1000, 0), errors.New("milliseconds should be grater than 946684800000")},
+		{16055265, time.Unix(0, 0), errors.New("milliseconds should be grater than 100000000")},
 		{0, time.Unix(0, 0), nil},
 	}
 
@@ -39,7 +39,7 @@ func TestMilliSecondsUnMarshal(t *testing.T) {
 		err      error
 	}{
 		{`1605526568000`, 1605526568000, nil},
-		{`1605526568`, 0, errors.New("failed to unmarshal the value of milliseconds: milliseconds should be grater than 946684800000")},
+		{`16055265`, 0, errors.New("failed to unmarshal the value of milliseconds: milliseconds should be grater than 100000000")},
 		{`null`, 0, nil},
 	}
 
