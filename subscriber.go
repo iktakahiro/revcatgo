@@ -28,15 +28,15 @@ type Entitlement struct {
 }
 
 type Subscription struct {
-	ExpiresDate            time.Time
-	GracePeriodExpiresDate null.Time
-	PurchaseDate           time.Time
-	OriginalPurchaseDate   time.Time
-	PeriodType             periodType
-	Store                  store
-	IsSandBox              bool
-	UnsubscribeDetectedAt  null.Time
-	BillingIssueDetectedAt null.Time
+	ExpiresDate            time.Time  `json:"expires_date"`
+	GracePeriodExpiresDate null.Time  `json:"grace_period_expires_date"`
+	PurchaseDate           time.Time  `json:"purchase_date"`
+	OriginalPurchaseDate   time.Time  `json:"original_purchase_date"`
+	PeriodType             periodType `json:"period_type"`
+	Store                  store      `json:"store"`
+	IsSandBox              bool       `json:"is_sandbox"`
+	UnsubscribeDetectedAt  null.Time  `json:"unsubscribe_detected_at"`
+	BillingIssueDetectedAt null.Time  `json:"billing_issue_detected_at"`
 }
 
 type NonSubscription struct {

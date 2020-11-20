@@ -51,7 +51,7 @@ func (p *periodType) UnmarshalJSON(b []byte) error {
 	if !v.value.Valid {
 		return errors.New("period_type is a required field")
 	}
-	_p, err := newPeriodType(v.value.ValueOrZero())
+	_p, err := newPeriodType(strings.ToUpper(v.value.ValueOrZero()))
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of period_type: %w", err)
 	}

@@ -53,7 +53,7 @@ func (s *store) UnmarshalJSON(b []byte) error {
 	if !v.value.Valid {
 		return errors.New("store is a required field")
 	}
-	_s, err := newStore(v.value.ValueOrZero())
+	_s, err := newStore(strings.ToUpper(v.value.ValueOrZero()))
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of store: %w", err)
 	}
