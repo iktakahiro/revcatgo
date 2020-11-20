@@ -1,8 +1,9 @@
 package revcatgo
 
 import (
-	"gopkg.in/guregu/null.v4"
 	"time"
+
+	"gopkg.in/guregu/null.v4"
 )
 
 type SubscriberResponse struct {
