@@ -41,6 +41,10 @@ func (c cancelReason) String() string {
 	return c.value.ValueOrZero()
 }
 
+func (c cancelReason) NullString() null.String {
+	return c.value
+}
+
 // MarshalJSON serializes a store to JSON.
 func (c cancelReason) MarshalJSON() ([]byte, error) {
 	return c.value.MarshalJSON()
