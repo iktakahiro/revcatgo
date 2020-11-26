@@ -152,3 +152,14 @@ func TestUnmarshalCancellationEvent(t *testing.T) {
 
 	assert.Equal(t, "BILLING_ERROR", event.CancelReason.String())
 }
+
+func TestEvent_GetAllRelatedUserID(t *testing.T) {
+	e := &Event{AppUserID: "one", OriginalAppUserID: "two", Aliases: []string{"one", "two"}}
+	assert.Equal(t, []string{"one", "two"}, e.GetAllRelatedUserID())
+
+	e = &Event{AppUserID: "one", Aliases: []string{"one"}}
+	assert.Equal(t, []string{"one"}, e.GetAllRelatedUserID())
+
+	e = &Event{AppUserID: "one"}
+	assert.Equal(t, []string{"one"}, e.GetAllRelatedUserID())
+}
