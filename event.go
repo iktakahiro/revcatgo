@@ -59,6 +59,32 @@ func (e *Event) HasEntitlementID(id string) bool {
 	return contains(e.EntitlementIDs, id)
 }
 
+// GetAllRelatedUserID returns a unique id list of AppUserID, OriginalAppUserID, and Aliases.
+func (e *Event) GetAllRelatedUserID() []string {
+
+	m := make(map[string]bool)
+	var idList []string
+	if e.AppUserID != "" {
+		idList = append(idList, e.AppUserID)
+	}
+	if e.OriginalAppUserID != "" {
+		idList = append(idList, e.OriginalAppUserID)
+	}
+	if len(e.Aliases) > 0 {
+		idList = append(idList, e.Aliases...)
+	}
+	var uniqueIDList []string
+
+	for _, ele := range idList {
+		if !m[ele] {
+			m[ele] = true
+			uniqueIDList = append(uniqueIDList, ele)
+		}
+	}
+
+	return uniqueIDList
+}
+
 // SubscriberAttributes represents a map of SubscriberAttribute.
 type subscriberAttributes map[string]subscriberAttribute
 
