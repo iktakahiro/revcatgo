@@ -10,7 +10,24 @@ A helper library for integrating the server side apps and [RevenueCat](https://w
 go get "github.com/iktakahiro/revcatgo@v0.4.0"
 ```
 
+## Receive webhooks
+
+```go
+func bind(w http.ResponseWriter, r *http.Request) error {
+    var webhookEvent revcatgo.WebhookEvent
+
+    err := json.NewDecoder(r.Body).Decode(&webhookEvent)
+    if err != nil {
+        return err
+    }
+    fmt.Println(webhookEvent.Type) // e.g. "INITIAL_PURCHASE"
+    return nil
+}
+```
+
 ## RevenueCat webhooks specification
+
+See the official document.
 
 * https://docs.revenuecat.com/docs/webhooks
 
