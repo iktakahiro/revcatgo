@@ -15,6 +15,7 @@ const (
 	EventTypeRenewal             = "RENEWAL"
 	EventTypeProductChange       = "PRODUCT_CHANGE"
 	EventTypeChancellation       = "CANCELLATION"
+	EventTypeUnChancellation     = "UNCANCELLATION"
 	EventTypeBillingIssue        = "BILLING_ISSUE"
 	EventTypeSubscriberAlias     = "SUBSCRIBER_ALIAS"
 	EventTypeSubscriptionPaused  = "SUBSCRIPTION_PAUSED"
@@ -27,6 +28,7 @@ var validEventTypeValues = []string{
 	EventTypeRenewal,
 	EventTypeProductChange,
 	EventTypeChancellation,
+	EventTypeUnChancellation,
 	EventTypeBillingIssue,
 	EventTypeSubscriberAlias,
 	EventTypeSubscriptionPaused,
