@@ -25,7 +25,7 @@ type Entitlement struct {
 	ProductIdentifier      string    `json:"product_identifier"`
 	ExpiresDate            time.Time `json:"expires_date"`
 	GracePeriodExpiresDate null.Time `json:"grace_period_expires_date"`
-	PurchaseDate           time.Time `json:"purchase_dat"`
+	PurchaseDate           time.Time `json:"purchase_date"`
 }
 
 type Subscription struct {
