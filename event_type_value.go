@@ -19,6 +19,8 @@ const (
 	EventTypeBillingIssue        = "BILLING_ISSUE"
 	EventTypeSubscriberAlias     = "SUBSCRIBER_ALIAS"
 	EventTypeSubscriptionPaused  = "SUBSCRIPTION_PAUSED"
+	EventTypeTransfer            = "TRANSFER"
+	EventTypeExpiration          = "EXPIRATION"
 )
 
 var validEventTypeValues = []string{
@@ -54,7 +56,7 @@ func (e eventType) MarshalJSON() ([]byte, error) {
 	return e.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserialized a store from JSON
 func (e *eventType) UnmarshalJSON(b []byte) error {
 	v := &eventType{}
 	err := v.value.UnmarshalJSON(b)
