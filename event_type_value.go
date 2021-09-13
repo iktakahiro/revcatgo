@@ -34,6 +34,8 @@ var validEventTypeValues = []string{
 	EventTypeBillingIssue,
 	EventTypeSubscriberAlias,
 	EventTypeSubscriptionPaused,
+	EventTypeTransfer,
+	EventTypeExpiration,
 }
 
 type eventType struct {
