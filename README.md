@@ -7,7 +7,7 @@
 A helper library for integrating the server side apps and [RevenueCat](https://www.revenuecat.com) webhook service
 
 ```bash
-go get "github.com/iktakahiro/revcatgo@v0.4.2"
+go get "github.com/iktakahiro/revcatgo@v0.5.0"
 ```
 
 ## Receive webhooks
