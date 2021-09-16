@@ -16,7 +16,7 @@ func TestNewEventType(t *testing.T) {
 	}{
 		{"INITIAL_PURCHASE", "INITIAL_PURCHASE", nil},
 		{"CANCELLATION", "CANCELLATION", nil},
-		{"INVALID", "", errors.New("eventType value should be one of the following: TEST, INITIAL_PURCHASE, NON_RENEWING_PURCHASE, RENEWAL, PRODUCT_CHANGE, CANCELLATION, UNCANCELLATION, BILLING_ISSUE, SUBSCRIBER_ALIAS, SUBSCRIPTION_PAUSED, TRANSFER, EXPIRATION")},
+		{"INVALID", "UNKNOWN", nil},
 	}
 
 	for _, c := range cases {
@@ -38,7 +38,7 @@ func TestEventTypeUnMarshal(t *testing.T) {
 	}{
 		{`"INITIAL_PURCHASE"`, "INITIAL_PURCHASE", nil},
 		{`"CANCELLATION"`, "CANCELLATION", nil},
-		{`"INVALID"`, "", errors.New("")},
+		{`"INVALID"`, "UNKNOWN", nil},
 		{`1`, "", errors.New("")},
 		{`null`, "", errors.New("")},
 	}

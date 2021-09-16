@@ -3,7 +3,6 @@ package revcatgo
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"gopkg.in/guregu/null.v4"
 )
@@ -21,6 +20,8 @@ const (
 	EventTypeSubscriptionPaused  = "SUBSCRIPTION_PAUSED"
 	EventTypeTransfer            = "TRANSFER"
 	EventTypeExpiration          = "EXPIRATION"
+	// use this when receving undefined eventType
+	EventTypeUnknown = "UNKNOWN"
 )
 
 var validEventTypeValues = []string{
@@ -44,7 +45,7 @@ type eventType struct {
 
 func newEventType(s string) (*eventType, error) {
 	if !contains(validEventTypeValues, s) {
-		return &eventType{}, errors.New("eventType value should be one of the following: " + strings.Join(validEventTypeValues, ", "))
+		return &eventType{value: null.StringFrom(EventTypeUnknown)}, nil
 	}
 	return &eventType{value: null.StringFrom(s)}, nil
 }
