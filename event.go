@@ -41,6 +41,8 @@ type Event struct {
 	SubscriberAttributes     subscriberAttributes `json:"subscriber_attributes"`
 	TransactionID            string               `json:"transaction_id"`
 	OriginalTransactionID    string               `json:"original_transaction_id"`
+	TransferredFrom          []string             `json:"transferred_from"`
+	TransferredTo            []string             `json:"transferred_to"`
 }
 
 // IsExpired checks whether a subscription is expired or not.
