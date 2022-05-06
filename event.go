@@ -32,6 +32,7 @@ type Event struct {
 	Environment              environment          `json:"environment"`
 	IsTrialConversion        null.Bool            `json:"is_trial_conversion"`
 	CancelReason             cancelReason         `json:"cancel_reason"`
+	ExpirationReason         cancelReason         `json:"expiration_reason"`
 	NewProductID             string               `json:"new_product_id"`
 	PresentedOfferingID      string               `json:"presented_offering_id"`
 	Price                    price                `json:"price"`
@@ -61,7 +62,6 @@ func (e *Event) HasEntitlementID(id string) bool {
 
 // GetAllRelatedUserID returns a unique id list of AppUserID, OriginalAppUserID, and Aliases.
 func (e *Event) GetAllRelatedUserID() []string {
-
 	m := make(map[string]bool)
 	var idList []string
 	if e.AppUserID != "" {
