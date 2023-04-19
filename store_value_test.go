@@ -16,7 +16,7 @@ func TestNewStore(t *testing.T) {
 	}{
 		{"PLAY_STORE", "PLAY_STORE", nil},
 		{"APP_STORE", "APP_STORE", nil},
-		{"INVALID", "", errors.New("store value should be one of the following: PLAY_STORE, APP_STORE, STRIPE, MAC_APP_STORE, PROMOTIONAL")},
+		{"INVALID", "", errors.New("store value should be one of the following: PLAY_STORE, APP_STORE, STRIPE, MAC_APP_STORE, PROMOTIONAL, got INVALID")},
 	}
 
 	for _, c := range cases {

@@ -32,7 +32,7 @@ var validCancelReasonValues = []string{
 
 func newCancelReason(v string) (*cancelReason, error) {
 	if !contains(validCancelReasonValues, v) {
-		return &cancelReason{}, errors.New("cancelReason value should be one of the following:" + strings.Join(validCancelReasonValues, ","))
+		return &cancelReason{}, fmt.Errorf("cancelReason value should be one of the following: %v, got %v", strings.Join(validCancelReasonValues, ","), v)
 	}
 	return &cancelReason{value: null.StringFrom(v)}, nil
 }

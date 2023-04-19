@@ -16,7 +16,7 @@ func TestNewPeriodType(t *testing.T) {
 	}{
 		{"TRIAL", "TRIAL", nil},
 		{"NORMAL", "NORMAL", nil},
-		{"INVALID", "", errors.New("periodType value should be one of the following:TRIAL,INTRO,NORMAL,PROMOTIONAL")},
+		{"INVALID", "", errors.New("periodType value should be one of the following: TRIAL,INTRO,NORMAL,PROMOTIONAL, got INVALID")},
 	}
 
 	for _, c := range cases {
