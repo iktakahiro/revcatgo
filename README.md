@@ -4,13 +4,13 @@
 
 ![Run test](https://github.com/iktakahiro/revcatgo/workflows/Run%20test/badge.svg?branch=main)
 
-A helper library for integrating the server side apps and [RevenueCat](https://www.revenuecat.com) webhook service
+A helper library for integrating server-side apps with the [RevenueCat](https://www.revenuecat.com) webhook service.
 
 ```bash
-go get "github.com/iktakahiro/revcatgo@v0.5.0"
+go get "github.com/iktakahiro/revcatgo@v1.1.0"
 ```
 
-## Receive webhooks
+## Receiving webhooks
 
 ```go
 func bind(w http.ResponseWriter, r *http.Request) error {
@@ -25,11 +25,11 @@ func bind(w http.ResponseWriter, r *http.Request) error {
 }
 ```
 
-## RevenueCat webhooks specification
+## RevenueCat webhooks specifications
 
-See the official document.
+Refer to the official documentation:
 
-* https://docs.revenuecat.com/docs/webhooks
+* <https://docs.revenuecat.com/docs/webhooks>
 
 [godev-image]: https://pkg.go.dev/badge/github.com/iktakahiro/revcatgo
 [godev-url]: https://pkg.go.dev/github.com/iktakahiro/revcatgo

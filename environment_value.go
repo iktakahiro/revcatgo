@@ -24,7 +24,7 @@ var validEnvironmentValues = []string{
 
 func newEnvironment(s string) (*environment, error) {
 	if !contains(validEnvironmentValues, s) {
-		return &environment{}, errors.New("environment value should be one of the following:" + strings.Join(validEnvironmentValues, ","))
+		return &environment{}, fmt.Errorf("environment value should be one of the following: %v, got %v", strings.Join(validEnvironmentValues, ","), s)
 	}
 	return &environment{value: null.StringFrom(s)}, nil
 }

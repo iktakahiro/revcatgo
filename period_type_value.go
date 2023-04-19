@@ -15,7 +15,7 @@ const (
 	PeriodTypePromotional = "PROMOTIONAL"
 )
 
-var validperiodTypeValues = []string{
+var validPeriodTypeValues = []string{
 	PeriodTypeTrial,
 	PeriodTypeIntro,
 	PeriodTypeNormal,
@@ -27,8 +27,8 @@ type periodType struct {
 }
 
 func newPeriodType(s string) (*periodType, error) {
-	if !contains(validperiodTypeValues, s) {
-		return &periodType{}, errors.New("periodType value should be one of the following:" + strings.Join(validperiodTypeValues, ","))
+	if !contains(validPeriodTypeValues, s) {
+		return &periodType{}, fmt.Errorf("periodType value should be one of the following: %v, got %v", strings.Join(validPeriodTypeValues, ","), s)
 	}
 	return &periodType{value: null.StringFrom(s)}, nil
 }

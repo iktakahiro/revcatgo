@@ -44,7 +44,7 @@ type eventType struct {
 
 func newEventType(s string) (*eventType, error) {
 	if !contains(validEventTypeValues, s) {
-		return &eventType{}, errors.New("eventType value should be one of the following: " + strings.Join(validEventTypeValues, ", "))
+		return &eventType{}, fmt.Errorf("eventType value should be one of the following: %v, got %v", strings.Join(validEventTypeValues, ", "), s)
 	}
 	return &eventType{value: null.StringFrom(s)}, nil
 }

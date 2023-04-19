@@ -13,6 +13,7 @@ type store struct {
 }
 
 const (
+	StoreAmazon      = "AMAZON"
 	StorePlayStore   = "PLAY_STORE"
 	StoreAppStore    = "APP_STORE"
 	StoreStripe      = "STRIPE"
@@ -30,7 +31,7 @@ var validStoreValues = []string{
 
 func newStore(s string) (*store, error) {
 	if !contains(validStoreValues, s) {
-		return &store{}, errors.New("store value should be one of the following: " + strings.Join(validStoreValues, ", "))
+		return &store{}, fmt.Errorf("store value should be one of the following: %v, got %v", strings.Join(validStoreValues, ", "), s)
 	}
 	return &store{value: null.StringFrom(s)}, nil
 }

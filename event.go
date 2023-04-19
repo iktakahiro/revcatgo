@@ -39,9 +39,14 @@ type Event struct {
 	Currency                 null.String          `json:"currency"`
 	PriceInPurchasedCurrency float32              `json:"price_in_purchased_currency"`
 	TakeHomePercentage       float32              `json:"takehome_percentage"`
+	CommissionPercentage     float32              `json:"commission_percentage"`
 	SubscriberAttributes     subscriberAttributes `json:"subscriber_attributes"`
 	TransactionID            string               `json:"transaction_id"`
 	OriginalTransactionID    string               `json:"original_transaction_id"`
+	IsFamilyShare            bool                 `json:"is_family_share"`
+	TransferredFrom          []string             `json:"transferred_from"`
+	TransferredTo            []string             `json:"transferred_to"`
+	CountryCode              string               `json:"country_code"`
 	OfferCode                string               `json:"offer_code"`
 }
 
