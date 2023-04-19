@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewEventType(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error
@@ -31,7 +31,7 @@ func TestNewEventType(t *testing.T) {
 }
 
 func TestEventTypeUnMarshal(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error

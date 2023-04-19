@@ -11,7 +11,7 @@ import (
 )
 
 func TestNewMilliSeconds(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       int64
 		expected time.Time
 		err      error
@@ -33,7 +33,7 @@ func TestNewMilliSeconds(t *testing.T) {
 }
 
 func TestMilliSecondsUnMarshal(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected int64
 		err      error

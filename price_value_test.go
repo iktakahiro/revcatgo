@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewPrice(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       float64
 		expected float64
 		err      error
@@ -27,7 +27,7 @@ func TestNewPrice(t *testing.T) {
 			assert.EqualError(t, err, c.err.Error())
 		}
 	}
-	var cases2 = []struct {
+	cases2 := []struct {
 		in       float64
 		expected bool
 		err      error
@@ -48,8 +48,7 @@ func TestNewPrice(t *testing.T) {
 }
 
 func TestPriceUnMarshal(t *testing.T) {
-
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected float64
 		err      error
