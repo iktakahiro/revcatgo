@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewCancelReason(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error
@@ -31,7 +31,7 @@ func TestNewCancelReason(t *testing.T) {
 }
 
 func TestCancelReasonUnMarshal(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error

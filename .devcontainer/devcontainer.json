@@ -1,0 +1,46 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go
+{
+	"name": "Go",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/go:0-1.20",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"[go]": {
+					"editor.formatOnSave": true
+				},
+				"go.toolsManagement.checkForUpdates": "local",
+				"go.useLanguageServer": true,
+				"go.gopath": "/go",
+				"go.goroot": "/usr/local/go",
+				"gopls": {
+					"formatting.gofumpt": true
+				}
+			},
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"golang.Go",
+				"donjayamanne.githistory",
+				"redhat.vscode-yaml",
+				"vscode-icons-team.vscode-icons",
+				"visualstudioexptteam.vscodeintellicode",
+				"vscodevim.vim",
+				"davidanson.vscode-markdownlint",
+				"eamodio.gitlens",
+				"github.vscode-pull-request-github",
+				"mhutchie.git-graph",
+				"bungcip.better-toml",
+				"mtxr.sqltools",
+				"streetsidesoftware.code-spell-checker",
+				"bradymholt.pgformatter",
+				"EditorConfig.EditorConfig",
+				"vivaxy.vscode-conventional-commits",
+				"GitHub.copilot",
+				"amazonwebservices.aws-toolkit-vscode",
+				"GitHub.copilot-labs",
+				"github.vscode-github-actions"
+			]
+		}
+	}
+}
