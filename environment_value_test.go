@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewEnvironment(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error
@@ -31,7 +31,7 @@ func TestNewEnvironment(t *testing.T) {
 }
 
 func TestEnvironmentUnMarshal(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error

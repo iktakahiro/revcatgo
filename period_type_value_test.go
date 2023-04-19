@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewPeriodType(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error
@@ -31,7 +31,7 @@ func TestNewPeriodType(t *testing.T) {
 }
 
 func TestPeriodTypeUnMarshal(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error

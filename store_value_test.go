@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewStore(t *testing.T) {
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error
@@ -31,8 +31,7 @@ func TestNewStore(t *testing.T) {
 }
 
 func TestStoreUnMarshal(t *testing.T) {
-
-	var cases = []struct {
+	cases := []struct {
 		in       string
 		expected string
 		err      error
