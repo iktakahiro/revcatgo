@@ -18,6 +18,7 @@ const (
 	CancelReasonDeveloperInitiated = "DEVELOPER_INITIATED"
 	CancelReasonPriceIncrease      = "PRICE_INCREASE"
 	CancelReasonCustomerSupport    = "CUSTOMER_SUPPORT"
+	CancelReasonSubscriptionPaused = "SUBSCRIPTION_PAUSED"
 	CancelReasonUnknown            = "UNKNOWN"
 )
 
@@ -27,6 +28,7 @@ var validCancelReasonValues = []string{
 	CancelReasonDeveloperInitiated,
 	CancelReasonPriceIncrease,
 	CancelReasonCustomerSupport,
+	CancelReasonSubscriptionPaused,
 	CancelReasonUnknown,
 }
 
