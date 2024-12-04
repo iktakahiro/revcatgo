@@ -16,7 +16,7 @@ func TestNewCancelReason(t *testing.T) {
 	}{
 		{"UNSUBSCRIBE", "UNSUBSCRIBE", nil},
 		{"BILLING_ERROR", "BILLING_ERROR", nil},
-		{"INVALID", "", errors.New("cancelReason value should be one of the following: UNSUBSCRIBE,BILLING_ERROR,DEVELOPER_INITIATED,PRICE_INCREASE,CUSTOMER_SUPPORT,UNKNOWN, got INVALID")},
+		{"INVALID", "", errors.New("cancelReason value should be one of the following: UNSUBSCRIBE,BILLING_ERROR,DEVELOPER_INITIATED,PRICE_INCREASE,CUSTOMER_SUPPORT,SUBSCRIPTION_PAUSED,UNKNOWN, got INVALID")},
 	}
 
 	for _, c := range cases {
