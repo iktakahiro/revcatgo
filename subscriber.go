@@ -12,13 +12,13 @@ type SubscriberResponse struct {
 }
 
 type Subscriber struct {
-	Entitlements      map[string]Entitlement     `json:"entitlements"`
-	FirstSeen         time.Time                  `json:"first_seen"`
-	LastSeen          time.Time                  `json:"last_seen"`
-	ManagementURL     null.String                `json:"management_url"`
-	OriginalAppUserID null.String                `json:"original_app_user_id"`
-	Subscriptions     map[string]Subscription    `json:"subscriptions"`
-	NonSubscription   map[string]NonSubscription `json:"non_subscriptions"`
+	Entitlements      map[string]Entitlement       `json:"entitlements"`
+	FirstSeen         time.Time                    `json:"first_seen"`
+	LastSeen          time.Time                    `json:"last_seen"`
+	ManagementURL     null.String                  `json:"management_url"`
+	OriginalAppUserID null.String                  `json:"original_app_user_id"`
+	Subscriptions     map[string]Subscription      `json:"subscriptions"`
+	NonSubscription   map[string][]NonSubscription `json:"non_subscriptions"`
 }
 
 type Entitlement struct {
