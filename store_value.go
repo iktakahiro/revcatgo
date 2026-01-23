@@ -25,6 +25,8 @@ const (
 	StoreMacAppStore = "MAC_APP_STORE"
 	// StorePromotional identifies purchases granted via promotional credits.
 	StorePromotional = "PROMOTIONAL"
+	// StoreRCBilling identifies purchases processed through RevenueCat Web Billing.
+	StoreRCBilling = "RC_BILLING"
 )
 
 var validStoreValues = []string{
@@ -33,6 +35,7 @@ var validStoreValues = []string{
 	StoreStripe,
 	StoreMacAppStore,
 	StorePromotional,
+	StoreRCBilling,
 }
 
 func newStore(s string) (*store, error) {
