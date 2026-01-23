@@ -40,7 +40,7 @@ func TestPeriodTypeUnMarshal(t *testing.T) {
 		{`"NORMAL"`, "NORMAL", nil},
 		{`"INVALID"`, "", errors.New("")},
 		{`1`, "", errors.New("")},
-		{`null`, "", errors.New("")},
+		{`null`, "", nil}, // null is valid - period_type is optional for non-subscription events
 	}
 
 	for _, c := range cases {

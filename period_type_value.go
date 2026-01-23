@@ -1,7 +1,6 @@
 package revcatgo
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -45,15 +44,18 @@ func (p periodType) MarshalJSON() ([]byte, error) {
 	return p.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserializes a period type from JSON.
+// period_type is optional - it's only present in subscription lifecycle events,
+// not in events like TEST or EXPERIMENT_ENROLLMENT.
 func (p *periodType) UnmarshalJSON(b []byte) error {
 	v := &periodType{}
 	err := v.value.UnmarshalJSON(b)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of period_type: %w", err)
 	}
+	// period_type is optional - allow null/missing values
 	if !v.value.Valid {
-		return errors.New("period_type is a required field")
+		return nil
 	}
 	_p, err := newPeriodType(strings.ToUpper(v.value.ValueOrZero()))
 	if err != nil {
