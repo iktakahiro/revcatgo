@@ -47,8 +47,9 @@ type Subscription struct {
 
 // NonSubscription describes a one-off, non-renewing purchase.
 type NonSubscription struct {
-	ID           string    `json:"id"`
-	Store        store     `json:"store"`
-	PurchaseDate time.Time `json:"purchase_date"`
-	IsSandBox    bool      `json:"is_sandbox"`
+	ID                 string             `json:"id"`
+	Store              store              `json:"store"`
+	StoreTransactionID storeTransactionID `json:"store_transaction_id"`
+	PurchaseDate       time.Time          `json:"purchase_date"`
+	IsSandBox          bool               `json:"is_sandbox"`
 }

@@ -18,7 +18,17 @@ const subscriberRawJSON = `
     "first_seen": "2019-02-21T00:08:41Z",
     "last_seen": "2019-07-26T17:40:10Z",
     "original_app_user_id": "XXX-XXXXX-XXXXX-XX",
-    "non_subscriptions": {},
+    "non_subscriptions": {
+      "coins": [
+        {
+          "id": "cadba0c81b",
+          "store": "app_store",
+          "store_transaction_id": 1000000652379790,
+          "purchase_date": "2019-04-05T21:52:45Z",
+          "is_sandbox": true
+        }
+      ]
+    },
     "subscriptions": {
       "annual": {
         "expires_date": "2019-08-14T21:07:40Z",
@@ -55,4 +65,9 @@ func TestUnmarshalSubscriberResponse(t *testing.T) {
 	onemonth := resp.Subscriber.Subscriptions["onemonth"]
 	assert.Equal(t, "APP_STORE", onemonth.Store.String())
 	assert.Equal(t, "1000000652379790", onemonth.StoreTransactionID.String())
+
+	coins := resp.Subscriber.NonSubscription["coins"]
+	assert.Len(t, coins, 1)
+	assert.Equal(t, "APP_STORE", coins[0].Store.String())
+	assert.Equal(t, "1000000652379790", coins[0].StoreTransactionID.String())
 }
