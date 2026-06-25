@@ -46,6 +46,7 @@ type Event struct {
 	Experiments              []experiment         `json:"experiments"`
 	TransactionID            string               `json:"transaction_id"`
 	OriginalTransactionID    string               `json:"original_transaction_id"`
+	StoreTransactionID       string               `json:"store_transaction_id"`
 	IsFamilyShare            bool                 `json:"is_family_share"`
 	TransferredFrom          []string             `json:"transferred_from"`
 	TransferredTo            []string             `json:"transferred_to"`

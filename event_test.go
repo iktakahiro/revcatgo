@@ -79,6 +79,7 @@ const initialPurchaseRawJSON = `
    "store": "PLAY_STORE",
    "price": 5.233,
    "transaction_id": "GPA.0000-4204-5621-00000",
+   "store_transaction_id": "GPA.0000-4204-5621-00000",
    "period_type": "NORMAL",
    "id": "00A23FAE-0DB8-42E2-A8DC-00000BCDF0D6",
    "aliases": [
@@ -109,6 +110,7 @@ func TestUnmarshalInitialPurchaseEvent(t *testing.T) {
 	assert.Equal(t, float32(550), event.PriceInPurchasedCurrency)
 	assert.Equal(t, float32(5.5), event.TaxPercentage)
 	assert.Equal(t, "app-123", event.AppID)
+	assert.Equal(t, "GPA.0000-4204-5621-00000", event.StoreTransactionID)
 	assert.Len(t, event.Experiments, 1)
 	assert.Equal(t, "exp_a", event.Experiments[0].ID)
 	assert.Equal(t, int64(1605256730251), event.ExpirationAt.Int64())
@@ -134,6 +136,7 @@ const cancellationRawJSON = `
    "id": "00A23FAE-0DB8-42E2-A8DC-00000BCDF0D6",
    "environment": "SANDBOX",
    "transaction_id": "GPA.0000-4204-5621-00000",
+   "store_transaction_id": "GPA.0000-4204-5621-00000",
    "period_type": "NORMAL",
    "price_in_purchased_currency": 0,
    "subscriber_attributes": {
@@ -165,6 +168,7 @@ func TestUnmarshalCancellationEvent(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "BILLING_ERROR", event.CancelReason.String())
+	assert.Equal(t, "GPA.0000-4204-5621-00000", event.StoreTransactionID)
 }
 
 const virtualCurrencyTransactionJSON = `
