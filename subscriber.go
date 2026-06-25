@@ -33,15 +33,16 @@ type Entitlement struct {
 
 // Subscription captures the state of an individual auto-renewing subscription.
 type Subscription struct {
-	ExpiresDate            time.Time  `json:"expires_date"`
-	GracePeriodExpiresDate null.Time  `json:"grace_period_expires_date"`
-	PurchaseDate           time.Time  `json:"purchase_date"`
-	OriginalPurchaseDate   time.Time  `json:"original_purchase_date"`
-	PeriodType             periodType `json:"period_type"`
-	Store                  store      `json:"store"`
-	IsSandBox              bool       `json:"is_sandbox"`
-	UnsubscribeDetectedAt  null.Time  `json:"unsubscribe_detected_at"`
-	BillingIssueDetectedAt null.Time  `json:"billing_issue_detected_at"`
+	ExpiresDate            time.Time          `json:"expires_date"`
+	GracePeriodExpiresDate null.Time          `json:"grace_period_expires_date"`
+	PurchaseDate           time.Time          `json:"purchase_date"`
+	OriginalPurchaseDate   time.Time          `json:"original_purchase_date"`
+	PeriodType             periodType         `json:"period_type"`
+	Store                  store              `json:"store"`
+	StoreTransactionID     storeTransactionID `json:"store_transaction_id"`
+	IsSandBox              bool               `json:"is_sandbox"`
+	UnsubscribeDetectedAt  null.Time          `json:"unsubscribe_detected_at"`
+	BillingIssueDetectedAt null.Time          `json:"billing_issue_detected_at"`
 }
 
 // NonSubscription describes a one-off, non-renewing purchase.
