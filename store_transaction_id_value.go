@@ -28,9 +28,15 @@ func (s storeTransactionID) MarshalJSON() ([]byte, error) {
 // or a JSON number.
 func (s *storeTransactionID) UnmarshalJSON(b []byte) error {
 	// Numbers are reported unquoted (e.g. by the App Store); quote them so the
-	// raw token is preserved exactly and parsed as a string.
+	// raw token is preserved exactly and parsed as a string. Build the quoted
+	// token in a fresh buffer: b may alias json.Unmarshal's backing array, so
+	// appending to it could overwrite the surrounding raw JSON.
 	if len(b) > 0 && b[0] != '"' && !bytes.Equal(b, []byte("null")) {
-		b = append([]byte{'"'}, append(b, '"')...)
+		quoted := make([]byte, 0, len(b)+2)
+		quoted = append(quoted, '"')
+		quoted = append(quoted, b...)
+		quoted = append(quoted, '"')
+		b = quoted
 	}
 	if err := s.value.UnmarshalJSON(b); err != nil {
 		return fmt.Errorf("failed to unmarshal the value of store transaction id: %w", err)
