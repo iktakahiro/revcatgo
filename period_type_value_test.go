@@ -16,14 +16,15 @@ func TestNewPeriodType(t *testing.T) {
 	}{
 		{"TRIAL", "TRIAL", nil},
 		{"NORMAL", "NORMAL", nil},
-		{"INVALID", "", errors.New("periodType value should be one of the following: TRIAL,INTRO,NORMAL,PROMOTIONAL, got INVALID")},
+		{"PREPAID", "PREPAID", nil},
+		{"INVALID", "", errors.New("periodType value should be one of the following: TRIAL,INTRO,NORMAL,PROMOTIONAL,PREPAID, got INVALID")},
 	}
 
 	for _, c := range cases {
 		actual, err := newPeriodType(c.in)
 		assert.Equal(t, c.expected, actual.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -38,6 +39,7 @@ func TestPeriodTypeUnMarshal(t *testing.T) {
 	}{
 		{`"TRIAL"`, "TRIAL", nil},
 		{`"NORMAL"`, "NORMAL", nil},
+		{`"PREPAID"`, "PREPAID", nil},
 		{`"INVALID"`, "", errors.New("")},
 		{`1`, "", errors.New("")},
 		{`null`, "", errors.New("")},
@@ -50,7 +52,7 @@ func TestPeriodTypeUnMarshal(t *testing.T) {
 
 		if err == nil {
 			assert.Equal(t, c.expected, p.String())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}

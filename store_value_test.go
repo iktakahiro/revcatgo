@@ -16,14 +16,19 @@ func TestNewStore(t *testing.T) {
 	}{
 		{"PLAY_STORE", "PLAY_STORE", nil},
 		{"APP_STORE", "APP_STORE", nil},
-		{"INVALID", "", errors.New("store value should be one of the following: PLAY_STORE, APP_STORE, STRIPE, MAC_APP_STORE, PROMOTIONAL, got INVALID")},
+		{"AMAZON", "AMAZON", nil},
+		{"PADDLE", "PADDLE", nil},
+		{"RC_BILLING", "RC_BILLING", nil},
+		{"ROKU", "ROKU", nil},
+		{"TEST_STORE", "TEST_STORE", nil},
+		{"INVALID", "", errors.New("store value should be one of the following: AMAZON, APP_STORE, MAC_APP_STORE, PADDLE, PLAY_STORE, RC_BILLING, ROKU, PROMOTIONAL, STRIPE, TEST_STORE, got INVALID")},
 	}
 
 	for _, c := range cases {
 		actual, err := newStore(c.in)
 		assert.Equal(t, c.expected, actual.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -38,6 +43,9 @@ func TestStoreUnMarshal(t *testing.T) {
 	}{
 		{`"PLAY_STORE"`, "PLAY_STORE", nil},
 		{`"APP_STORE"`, "APP_STORE", nil},
+		{`"amazon"`, "AMAZON", nil},
+		{`"paddle"`, "PADDLE", nil},
+		{`"rc_billing"`, "RC_BILLING", nil},
 		{`"INVALID"`, "", errors.New("")},
 		{`1`, "", errors.New("")},
 		{`null`, "", errors.New("")},
@@ -50,7 +58,7 @@ func TestStoreUnMarshal(t *testing.T) {
 
 		if err == nil {
 			assert.Equal(t, c.expected, s.String())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}

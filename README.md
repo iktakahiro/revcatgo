@@ -1,21 +1,24 @@
 # revcatgo
 
 [![GoDev][godev-image]][godev-url]
-![Run test](https://github.com/iktakahiro/revcatgo/workflows/Run%20test/badge.svg?branch=main)
+![CI](https://github.com/iktakahiro/revcatgo/actions/workflows/ci.yml/badge.svg?branch=main)
 
 revcatgo is a lightweight Go helper library that models [RevenueCat](https://www.revenuecat.com) webhook payloads and subscriber API responses with type-safe value objects and small convenience helpers.
 
 ## Features
 
 - Strongly typed wrappers for event type, environment, store, and other enumerations to avoid typo-prone string comparisons.
+- Coverage for the current RevenueCat webhook families, including experiment enrollment, purchase redemption, Paywall UI, price increase consent, and virtual currency events.
+- Forward-compatible decoding for custom Paywall event names and new RevenueCat event types.
+- HMAC-SHA256 webhook signature verification with optional replay protection.
 - Utility methods for common webhook workflows such as checking expiration windows, collecting related user identifiers, and inspecting sandbox events.
-- Data structures that mirror RevenueCat’s subscriber API responses, ready for direct decoding with the standard library.
-- Works with Go 1.25+ and has a small dependency footprint (only `gopkg.in/guregu/null.v4` for nullable values).
+- Data structures that mirror RevenueCat’s Subscriber API v1 responses, ready for direct decoding with the standard library.
+- Works with Go 1.26+ and has a small dependency footprint (only `gopkg.in/guregu/null.v4` for nullable values).
 
 ## Installation
 
 ```bash
-go get github.com/iktakahiro/revcatgo@v1.1.0
+go get github.com/iktakahiro/revcatgo@latest
 ```
 
 ## Quick start
@@ -67,9 +70,38 @@ func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-## Working with subscriber API responses
+## Verifying webhook signatures
 
-The same structs can unmarshal the JSON returned by the Subscriber API. `null` values from RevenueCat are preserved through `gopkg.in/guregu/null.v4`.
+RevenueCat signs the exact request bytes, so verify the raw body before unmarshalling it. A positive tolerance also rejects replayed requests whose timestamp is outside the allowed window.
+
+```go
+body, err := io.ReadAll(r.Body)
+if err != nil {
+ http.Error(w, err.Error(), http.StatusBadRequest)
+ return
+}
+
+err = revcatgo.VerifyWebhookSignature(
+ r.Header.Get(revcatgo.WebhookSignatureHeader),
+ body,
+ webhookSigningSecret,
+ 5*time.Minute,
+)
+if err != nil {
+ http.Error(w, "invalid RevenueCat signature", http.StatusUnauthorized)
+ return
+}
+
+var hook revcatgo.WebhookEvent
+if err := json.Unmarshal(body, &hook); err != nil {
+ http.Error(w, err.Error(), http.StatusBadRequest)
+ return
+}
+```
+
+## Working with Subscriber API v1 responses
+
+The same structs can unmarshal the JSON returned by `GET /v1/subscribers/{app_user_id}`. `null` values from RevenueCat are preserved through `gopkg.in/guregu/null.v4`.
 
 ```go
 import (
@@ -87,7 +119,8 @@ func decodeSubscriberResponse(body io.Reader) (*revcatgo.SubscriberResponse, err
  }
 
  for productID, entitlement := range resp.Subscriber.Entitlements {
-  if entitlement.ExpiresDate.Before(time.Now()) {
+  // RevenueCat returns null for lifetime entitlement expiration dates.
+  if !entitlement.ExpiresDate.IsZero() && entitlement.ExpiresDate.Before(time.Now()) {
    continue
   }
   // grant access for productID
@@ -102,8 +135,8 @@ func decodeSubscriberResponse(body io.Reader) (*revcatgo.SubscriberResponse, err
 Common helper targets:
 
 ```bash
-# Download/update tool binaries declared via the go.mod tool directives
-make tools
+# Install the pinned Go toolchain and golangci-lint binary
+mise install
 
 # Format Go sources via golangci-lint fmt (requires golangci-lint v2+)
 make fmt
@@ -120,7 +153,9 @@ make vulncheck
 
 ## References
 
-- RevenueCat webhooks documentation: <https://docs.revenuecat.com/docs/webhooks>
+- RevenueCat webhooks documentation: <https://www.revenuecat.com/docs/integrations/webhooks>
+- RevenueCat webhook event types and fields: <https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields>
+- RevenueCat API v1 reference: <https://www.revenuecat.com/docs/api-v1>
 
 ## License
 

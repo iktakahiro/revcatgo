@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -20,11 +21,11 @@ func TestNewPrice(t *testing.T) {
 
 	for _, c := range cases {
 		actual, err := newPrice(null.FloatFrom(c.in))
-		assert.Equal(t, c.expected, actual.Float64())
+		assert.InDelta(t, c.expected, actual.Float64(), 1e-9)
 		if c.err == nil {
-			assert.Nil(t, err)
+			require.NoError(t, err)
 		} else {
-			assert.EqualError(t, err, c.err.Error())
+			require.EqualError(t, err, c.err.Error())
 		}
 	}
 	cases2 := []struct {
@@ -40,7 +41,7 @@ func TestNewPrice(t *testing.T) {
 		actual, err := newPrice(null.FloatFrom(c.in))
 		if err == nil {
 			assert.Equal(t, c.expected, actual.IsFreeTrial())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -63,11 +64,17 @@ func TestPriceUnMarshal(t *testing.T) {
 		b := []byte(c.in)
 		err := json.Unmarshal(b, &p)
 
-		assert.Equal(t, c.expected, p.Float64())
+		assert.InDelta(t, c.expected, p.Float64(), 1e-9)
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}
 	}
+}
+
+func TestNullPriceIsNotAFreeTrial(t *testing.T) {
+	var p price
+	require.NoError(t, json.Unmarshal([]byte(`null`), &p))
+	assert.False(t, p.IsFreeTrial())
 }

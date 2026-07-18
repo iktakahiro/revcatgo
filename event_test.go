@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -14,14 +15,14 @@ func TestNewEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "APP_STORE", event.Store.String())
 	assert.Equal(t, "INITIAL_PURCHASE", event.Type.String())
 
 	b = []byte(`{"store":1}`)
 	err = json.Unmarshal(b, &event)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	b = []byte(`{"store":null}`)
 	err = json.Unmarshal(b, &event)
@@ -42,6 +43,7 @@ func TestEventIsExpired(t *testing.T) {
 	assert.False(t, event.IsExpired(0, &pastTime))
 	assert.False(t, event.IsExpired(time.Hour*168, &futureTime))
 	assert.True(t, event.IsExpired(time.Hour*48, &futureTime))
+	assert.False(t, (&Event{}).IsExpired(0, &futureTime))
 }
 
 const initialPurchaseRawJSON = `
@@ -87,10 +89,16 @@ const initialPurchaseRawJSON = `
    "experiments": [
      {
        "experiment_id": "exp_a",
-       "experiment_variant": "treatment"
+       "experiment_variant": "treatment",
+       "enrolled_at_ms": 1605256000000
      }
    ],
-   "renewal_number": 1
+   "renewal_number": 1,
+   "metadata": {"campaign": "summer"},
+   "discount_percentage": 10.5,
+   "discount_amount": 1.25,
+   "discount_identifier": "launch-offer",
+   "quantity": 2
 }
 `
 
@@ -99,18 +107,22 @@ func TestUnmarshalInitialPurchaseEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "my.subscription.sandbox", event.ProductID)
 	assert.Equal(t, "PLAY_STORE", event.Store.String())
 	assert.Equal(t, "INITIAL_PURCHASE", event.Type.String())
 	assert.Equal(t, "SANDBOX", event.Environment.String())
 	assert.Equal(t, "$RCAnonymousID:0000000000000000000000000000000b", event.AppUserID)
-	assert.Equal(t, float32(550), event.PriceInPurchasedCurrency)
-	assert.Equal(t, float32(5.5), event.TaxPercentage)
+	assert.InDelta(t, 550, event.PriceInPurchasedCurrency, 0.001)
+	assert.InDelta(t, 5.5, event.TaxPercentage, 0.001)
 	assert.Equal(t, "app-123", event.AppID)
 	assert.Len(t, event.Experiments, 1)
 	assert.Equal(t, "exp_a", event.Experiments[0].ID)
+	assert.Equal(t, int64(1605256000000), event.Experiments[0].EnrolledAt.Int64())
+	assert.Equal(t, "summer", event.Metadata["campaign"])
+	assert.InDelta(t, 10.5, event.DiscountPercentage.Float64, 1e-9)
+	assert.Equal(t, int64(2), event.Quantity.Int64)
 	assert.Equal(t, int64(1605256730251), event.ExpirationAt.Int64())
 	assert.True(t, event.HasEntitlementID("premium"))
 	assert.False(t, event.HasEntitlementID("invalid_entitlement_id"))
@@ -162,7 +174,7 @@ func TestUnmarshalCancellationEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "BILLING_ERROR", event.CancelReason.String())
 }
@@ -176,6 +188,7 @@ const virtualCurrencyTransactionJSON = `
   "purchase_environment": "PRODUCTION",
   "source": "in_app_purchase",
   "virtual_currency_transaction_id": "vtxn_001",
+  "updated_balance": 80,
   "adjustments": [
     {
       "amount": 100,
@@ -203,7 +216,7 @@ func TestUnmarshalVirtualCurrencyTransactionEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "VIRTUAL_CURRENCY_TRANSACTION", event.Type.String())
 	assert.Equal(t, "app-virtual", event.AppID)
@@ -211,9 +224,98 @@ func TestUnmarshalVirtualCurrencyTransactionEvent(t *testing.T) {
 	assert.Equal(t, "Extra Coins Pack", event.ProductDisplayName)
 	assert.Equal(t, "PRODUCTION", event.PurchaseEnvironment.String())
 	assert.Equal(t, "in_app_purchase", event.Source)
+	assert.Equal(t, int64(80), event.UpdatedBalance.Int64)
 	assert.Len(t, event.Adjustments, 2)
 	assert.Equal(t, 100, event.Adjustments[0].Amount)
 	assert.Equal(t, "coins", event.Adjustments[0].Currency.Code)
+}
+
+func TestUnmarshalExperimentEnrollmentEvent(t *testing.T) {
+	data := []byte(`{
+		"type":"EXPERIMENT_ENROLLMENT",
+		"id":"evt-experiment",
+		"app_user_id":"user-123",
+		"experiment_id":"prexpca1234abcd",
+		"experiment_variant":"b",
+		"offering_id":"experiment_offering_b",
+		"experiment_enrolled_at_ms":1658726378679
+	}`)
+
+	var event Event
+	require.NoError(t, json.Unmarshal(data, &event))
+	assert.Equal(t, EventTypeExperimentEnrollment, event.Type.String())
+	assert.Equal(t, "prexpca1234abcd", event.ExperimentID)
+	assert.Equal(t, "b", event.ExperimentVariant)
+	assert.Equal(t, "experiment_offering_b", event.OfferingID)
+	assert.Equal(t, int64(1658726378679), event.ExperimentEnrolledAt.Int64())
+}
+
+func TestUnmarshalPurchaseRedeemedEvent(t *testing.T) {
+	data := []byte(`{
+		"type":"PURCHASE_REDEEMED",
+		"store":"RC_BILLING",
+		"environment":"PRODUCTION",
+		"redeemed_from":["web-user"],
+		"redeemed_by":["app-user"],
+		"redemption_outcome":"alias",
+		"redemption_platform":"ios",
+		"workflow_id":"wf_abc123",
+		"workflow_step_id":"step_xyz789",
+		"trace_id":"trace_abcdef"
+	}`)
+
+	var event Event
+	require.NoError(t, json.Unmarshal(data, &event))
+	assert.Equal(t, EventTypePurchaseRedeemed, event.Type.String())
+	assert.Equal(t, "RC_BILLING", event.Store.String())
+	assert.Equal(t, []string{"web-user"}, event.RedeemedFrom)
+	assert.Equal(t, []string{"app-user"}, event.RedeemedBy)
+	assert.Equal(t, "alias", event.RedemptionOutcome)
+	assert.Equal(t, "ios", event.RedemptionPlatform.String)
+	assert.Equal(t, "trace_abcdef", event.TraceID)
+}
+
+func TestUnmarshalPaywallComponentEvent(t *testing.T) {
+	data := []byte(`{
+		"type":"PAYWALL_COMPONENT_INTERACTED",
+		"event_id":"paywall-event-123",
+		"app_user_id":"app-user",
+		"platform":"iOS",
+		"platform_version":"18.5",
+		"sdk_version":"5.80.0",
+		"subscriber_attributes":{"$email":"customer@example.com"},
+		"paywall_id":"pw_123",
+		"paywall_name":"Premium",
+		"offering_id":"monthly",
+		"session_id":"session-123",
+		"display_mode":null,
+		"dark_mode":false,
+		"locale":"en_IE",
+		"environment":"SANDBOX",
+		"component_type":"package",
+		"component_value":"$rc_monthly",
+		"origin_index":0,
+		"destination_index":1,
+		"destination_package_id":"$rc_annual",
+		"destination_product_id":"annual_product"
+	}`)
+
+	var event Event
+	require.NoError(t, json.Unmarshal(data, &event))
+	assert.Equal(t, EventTypePaywallComponentInteracted, event.Type.String())
+	assert.Equal(t, "paywall-event-123", event.PaywallEventID)
+	assert.Equal(t, "pw_123", event.PaywallID)
+	assert.False(t, event.DisplayMode.Valid)
+	assert.True(t, event.DarkMode.Valid)
+	assert.False(t, event.DarkMode.Bool)
+	assert.Equal(t, "customer@example.com", event.SubscriberAttributes["$email"].Value)
+	assert.Equal(t, "package", event.ComponentType)
+	assert.Equal(t, int64(1), event.DestinationIndex.Int64)
+	assert.Equal(t, "$rc_annual", event.DestinationPackageID)
+
+	roundTrip, err := json.Marshal(event)
+	require.NoError(t, err)
+	assert.Contains(t, string(roundTrip), `"$email":"customer@example.com"`)
 }
 
 func TestEvent_GetAllRelatedUserID(t *testing.T) {

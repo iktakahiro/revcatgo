@@ -17,6 +17,8 @@ const (
 	PeriodTypeNormal = "NORMAL"
 	// PeriodTypePromotional identifies a promotional period.
 	PeriodTypePromotional = "PROMOTIONAL"
+	// PeriodTypePrepaid identifies a prepaid subscription period.
+	PeriodTypePrepaid = "PREPAID"
 )
 
 var validPeriodTypeValues = []string{
@@ -24,6 +26,7 @@ var validPeriodTypeValues = []string{
 	PeriodTypeIntro,
 	PeriodTypeNormal,
 	PeriodTypePromotional,
+	PeriodTypePrepaid,
 }
 
 type periodType struct {
@@ -45,7 +48,7 @@ func (p periodType) MarshalJSON() ([]byte, error) {
 	return p.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserializes a period type from JSON.
 func (p *periodType) UnmarshalJSON(b []byte) error {
 	v := &periodType{}
 	err := v.value.UnmarshalJSON(b)

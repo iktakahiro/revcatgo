@@ -1,13 +1,16 @@
 package revcatgo
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"gopkg.in/guregu/null.v4"
 )
 
 // WebhookEvent represents a request body of RevenueCat webhook.
-// https://docs.revenuecat.com/docs/webhooks
+// https://www.revenuecat.com/docs/integrations/webhooks
 type WebhookEvent struct {
 	Event      Event  `json:"event"`
 	APIVersion string `json:"api_version"`
@@ -52,15 +55,66 @@ type Event struct {
 	CountryCode              string               `json:"country_code"`
 	OfferCode                string               `json:"offer_code"`
 	RenewalNumber            int                  `json:"renewal_number"`
+	Metadata                 map[string]any       `json:"metadata"`
+	DiscountPercentage       null.Float           `json:"discount_percentage"`
+	DiscountAmount           null.Float           `json:"discount_amount"`
+	DiscountIdentifier       null.String          `json:"discount_identifier"`
+	Quantity                 null.Int             `json:"quantity"`
 	Adjustments              []virtualAdjustment  `json:"adjustments"`
 	ProductDisplayName       string               `json:"product_display_name"`
 	PurchaseEnvironment      environment          `json:"purchase_environment"`
 	Source                   string               `json:"source"`
 	VirtualTransactionID     string               `json:"virtual_currency_transaction_id"`
+	UpdatedBalance           null.Int             `json:"updated_balance"`
+	AdTransactionID          string               `json:"ad_transaction_id"`
+	ExperimentID             string               `json:"experiment_id"`
+	ExperimentVariant        string               `json:"experiment_variant"`
+	ExperimentEnrolledAt     milliseconds         `json:"experiment_enrolled_at_ms"`
+	OfferingID               string               `json:"offering_id"`
+	RedeemedFrom             []string             `json:"redeemed_from"`
+	RedeemedBy               []string             `json:"redeemed_by"`
+	RedemptionOutcome        string               `json:"redemption_outcome"`
+	RedemptionPlatform       null.String          `json:"redemption_platform"`
+	WorkflowID               string               `json:"workflow_id"`
+	WorkflowStepID           string               `json:"workflow_step_id"`
+	TraceID                  string               `json:"trace_id"`
+	PaywallEventID           string               `json:"event_id"`
+	Platform                 string               `json:"platform"`
+	PlatformVersion          string               `json:"platform_version"`
+	SDKVersion               string               `json:"sdk_version"`
+	PaywallID                string               `json:"paywall_id"`
+	PaywallName              string               `json:"paywall_name"`
+	SessionID                string               `json:"session_id"`
+	DisplayMode              null.String          `json:"display_mode"`
+	DarkMode                 null.Bool            `json:"dark_mode"`
+	Locale                   null.String          `json:"locale"`
+	ComponentType            string               `json:"component_type"`
+	ComponentValue           string               `json:"component_value"`
+	ComponentName            string               `json:"component_name"`
+	ComponentURL             string               `json:"component_url"`
+	OriginIndex              null.Int             `json:"origin_index"`
+	DestinationIndex         null.Int             `json:"destination_index"`
+	OriginContextName        string               `json:"origin_context_name"`
+	DestinationContextName   string               `json:"destination_context_name"`
+	DefaultIndex             null.Int             `json:"default_index"`
+	OriginPackageID          string               `json:"origin_package_id"`
+	DestinationPackageID     string               `json:"destination_package_id"`
+	DefaultPackageID         string               `json:"default_package_id"`
+	CurrentPackageID         string               `json:"current_package_id"`
+	ResultingPackageID       string               `json:"resulting_package_id"`
+	OriginProductID          string               `json:"origin_product_id"`
+	DestinationProductID     string               `json:"destination_product_id"`
+	DefaultProductID         string               `json:"default_product_id"`
+	CurrentProductID         string               `json:"current_product_id"`
+	ResultingProductID       string               `json:"resulting_product_id"`
 }
 
 // IsExpired checks whether a subscription is expired or not.
 func (e *Event) IsExpired(grace time.Duration, base *time.Time) bool {
+	if !e.ExpirationAt.NullInt().Valid {
+		return false
+	}
+
 	var b time.Time
 	if base == nil {
 		b = time.Now()
@@ -107,12 +161,45 @@ type subscriberAttributes map[string]subscriberAttribute
 type subscriberAttribute struct {
 	Value     string       `json:"value"`
 	UpdatedAt milliseconds `json:"updated_at_ms"`
+	flattened bool
+}
+
+func (s subscriberAttribute) MarshalJSON() ([]byte, error) {
+	if s.flattened {
+		return json.Marshal(s.Value)
+	}
+
+	type attribute subscriberAttribute
+
+	return json.Marshal(attribute(s))
+}
+
+func (s *subscriberAttribute) UnmarshalJSON(data []byte) error {
+	data = bytes.TrimSpace(data)
+	if len(data) > 0 && data[0] == '{' {
+		type attribute subscriberAttribute
+		var value attribute
+		if err := json.Unmarshal(data, &value); err != nil {
+			return fmt.Errorf("failed to unmarshal subscriber attribute: %w", err)
+		}
+		*s = subscriberAttribute(value)
+
+		return nil
+	}
+
+	if err := json.Unmarshal(data, &s.Value); err != nil {
+		return fmt.Errorf("failed to unmarshal flattened subscriber attribute: %w", err)
+	}
+	s.flattened = true
+
+	return nil
 }
 
 // experiment represents a single experiment enrollment attached to the event.
 type experiment struct {
-	ID      string `json:"experiment_id"`
-	Variant string `json:"experiment_variant"`
+	ID         string       `json:"experiment_id"`
+	Variant    string       `json:"experiment_variant"`
+	EnrolledAt milliseconds `json:"enrolled_at_ms"`
 }
 
 // virtualAdjustment captures adjustments part of virtual currency transactions.

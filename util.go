@@ -1,10 +1,7 @@
 package revcatgo
 
+import "slices"
+
 func contains(s []string, e string) bool {
-	for _, v := range s {
-		if e == v {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s, e)
 }
