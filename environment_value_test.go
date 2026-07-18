@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewEnvironment(t *testing.T) {
@@ -23,7 +24,7 @@ func TestNewEnvironment(t *testing.T) {
 		actual, err := newEnvironment(c.in)
 		assert.Equal(t, c.expected, actual.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -50,7 +51,7 @@ func TestEnvironmentUnMarshal(t *testing.T) {
 
 		assert.Equal(t, c.expected, e.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}
@@ -59,12 +60,12 @@ func TestEnvironmentUnMarshal(t *testing.T) {
 
 func TestEnvironmentHelpers(t *testing.T) {
 	sandbox, err := newEnvironment(EnvironmentSandbox)
-	assert.NoError(t, err)
-	assert.True(t, sandbox.IsSandBox())
+	require.NoError(t, err)
+	assert.True(t, sandbox.IsSandbox())
 	assert.False(t, sandbox.IsProduction())
 
 	production, err := newEnvironment(EnvironmentProduction)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, production.IsProduction())
-	assert.False(t, production.IsSandBox())
+	assert.False(t, production.IsSandbox())
 }

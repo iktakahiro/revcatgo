@@ -12,13 +12,13 @@ type milliseconds struct {
 }
 
 const (
-	// 1973-03-03T09:46:40
-	millisecondsThreshold = 100000000
+	// 1973-03-03T09:46:40Z in milliseconds since the Unix epoch.
+	millisecondsThreshold = 100_000_000_000
 )
 
 func newMilliseconds(v null.Int) (*milliseconds, error) {
 	if v.ValueOrZero() != 0 && v.ValueOrZero() < millisecondsThreshold {
-		return &milliseconds{}, fmt.Errorf("milliseconds should be grater than %v", millisecondsThreshold)
+		return &milliseconds{}, fmt.Errorf("milliseconds should be greater than %v", millisecondsThreshold)
 	}
 	return &milliseconds{value: v}, nil
 }
@@ -36,7 +36,7 @@ func (m *milliseconds) String() string {
 }
 
 func (m *milliseconds) DateTime() time.Time {
-	return time.Unix(m.value.ValueOrZero()/1000, 0)
+	return time.UnixMilli(m.value.ValueOrZero())
 }
 
 func (m milliseconds) MarshalJSON() ([]byte, error) {

@@ -54,14 +54,14 @@ func (c cancelReason) NullString() null.String {
 	return c.value
 }
 
-// MarshalJSON serializes a store to JSON.
+// MarshalJSON serializes a cancellation reason to JSON.
 func (c cancelReason) MarshalJSON() ([]byte, error) {
 	return c.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserializes a cancellation reason from JSON.
 func (c *cancelReason) UnmarshalJSON(b []byte) error {
-	v := &environment{}
+	v := &cancelReason{}
 	err := v.value.UnmarshalJSON(b)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of cancel_reason: %w", err)

@@ -23,7 +23,7 @@ func TestNewStore(t *testing.T) {
 		actual, err := newStore(c.in)
 		assert.Equal(t, c.expected, actual.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -50,7 +50,7 @@ func TestStoreUnMarshal(t *testing.T) {
 
 		if err == nil {
 			assert.Equal(t, c.expected, s.String())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}

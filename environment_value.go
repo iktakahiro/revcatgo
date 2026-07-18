@@ -39,16 +39,22 @@ func (e *environment) IsProduction() bool {
 	return e.value.ValueOrZero() == EnvironmentProduction
 }
 
-func (e *environment) IsSandBox() bool {
+func (e *environment) IsSandbox() bool {
 	return e.value.ValueOrZero() == EnvironmentSandbox
 }
 
-// MarshalJSON serializes a store to JSON.
+// IsSandBox reports whether the environment is sandboxed.
+// Deprecated: use IsSandbox.
+func (e *environment) IsSandBox() bool {
+	return e.IsSandbox()
+}
+
+// MarshalJSON serializes an environment to JSON.
 func (e environment) MarshalJSON() ([]byte, error) {
 	return e.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserializes an environment from JSON.
 func (e *environment) UnmarshalJSON(b []byte) error {
 	v := &environment{}
 	err := v.value.UnmarshalJSON(b)
