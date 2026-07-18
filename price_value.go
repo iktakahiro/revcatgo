@@ -14,7 +14,7 @@ func newPrice(v null.Float) (*price, error) {
 	return &price{value: v}, nil
 }
 
-// String returns the price value.
+// Float64 returns the price value.
 func (p price) Float64() float64 {
 	return p.value.ValueOrZero()
 }
@@ -27,7 +27,7 @@ func (p price) MarshalJSON() ([]byte, error) {
 	return p.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserializes a price from JSON.
 func (p *price) UnmarshalJSON(b []byte) error {
 	v := &price{}
 	err := v.value.UnmarshalJSON(b)

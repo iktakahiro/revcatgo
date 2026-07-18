@@ -63,7 +63,7 @@ func (s store) MarshalJSON() ([]byte, error) {
 	return s.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserializes a store from JSON
+// UnmarshalJSON deserializes a store from JSON.
 func (s *store) UnmarshalJSON(b []byte) error {
 	v := &store{}
 	err := v.value.UnmarshalJSON(b)

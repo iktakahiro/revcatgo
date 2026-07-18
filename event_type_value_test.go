@@ -24,7 +24,7 @@ func TestNewEventType(t *testing.T) {
 		actual, err := newEventType(c.in)
 		assert.Equal(t, c.expected, actual.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -51,7 +51,7 @@ func TestEventTypeUnMarshal(t *testing.T) {
 
 		assert.Equal(t, c.expected, e.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}

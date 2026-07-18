@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewCancelReason(t *testing.T) {
@@ -23,7 +24,7 @@ func TestNewCancelReason(t *testing.T) {
 		actual, err := newCancelReason(c.in)
 		assert.Equal(t, c.expected, actual.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
@@ -50,7 +51,7 @@ func TestCancelReasonUnMarshal(t *testing.T) {
 
 		assert.Equal(t, c.expected, cr.String())
 		if c.err == nil {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		} else {
 			assert.Error(t, err)
 		}
@@ -59,7 +60,7 @@ func TestCancelReasonUnMarshal(t *testing.T) {
 
 func TestCancelReasonNullString(t *testing.T) {
 	c, err := newCancelReason(CancelReasonCustomerSupport)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	nullString := c.NullString()
 	assert.True(t, nullString.Valid)

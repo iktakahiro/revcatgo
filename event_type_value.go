@@ -80,12 +80,12 @@ func (e eventType) String() string {
 	return e.value.ValueOrZero()
 }
 
-// MarshalJSON serializes a store to JSON.
+// MarshalJSON serializes an event type to JSON.
 func (e eventType) MarshalJSON() ([]byte, error) {
 	return e.value.MarshalJSON()
 }
 
-// UnmarshalJSON deserialized a store from JSON
+// UnmarshalJSON deserializes an event type from JSON.
 func (e *eventType) UnmarshalJSON(b []byte) error {
 	v := &eventType{}
 	err := v.value.UnmarshalJSON(b)

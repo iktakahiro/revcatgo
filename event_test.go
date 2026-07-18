@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -14,14 +15,14 @@ func TestNewEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "APP_STORE", event.Store.String())
 	assert.Equal(t, "INITIAL_PURCHASE", event.Type.String())
 
 	b = []byte(`{"store":1}`)
 	err = json.Unmarshal(b, &event)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	b = []byte(`{"store":null}`)
 	err = json.Unmarshal(b, &event)
@@ -99,15 +100,15 @@ func TestUnmarshalInitialPurchaseEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "my.subscription.sandbox", event.ProductID)
 	assert.Equal(t, "PLAY_STORE", event.Store.String())
 	assert.Equal(t, "INITIAL_PURCHASE", event.Type.String())
 	assert.Equal(t, "SANDBOX", event.Environment.String())
 	assert.Equal(t, "$RCAnonymousID:0000000000000000000000000000000b", event.AppUserID)
-	assert.Equal(t, float32(550), event.PriceInPurchasedCurrency)
-	assert.Equal(t, float32(5.5), event.TaxPercentage)
+	assert.InDelta(t, 550, event.PriceInPurchasedCurrency, 0.001)
+	assert.InDelta(t, 5.5, event.TaxPercentage, 0.001)
 	assert.Equal(t, "app-123", event.AppID)
 	assert.Len(t, event.Experiments, 1)
 	assert.Equal(t, "exp_a", event.Experiments[0].ID)
@@ -162,7 +163,7 @@ func TestUnmarshalCancellationEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "BILLING_ERROR", event.CancelReason.String())
 }
@@ -203,7 +204,7 @@ func TestUnmarshalVirtualCurrencyTransactionEvent(t *testing.T) {
 
 	var event Event
 	err := json.Unmarshal(b, &event)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "VIRTUAL_CURRENCY_TRANSACTION", event.Type.String())
 	assert.Equal(t, "app-virtual", event.AppID)

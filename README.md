@@ -1,7 +1,7 @@
 # revcatgo
 
 [![GoDev][godev-image]][godev-url]
-![Run test](https://github.com/iktakahiro/revcatgo/workflows/Run%20test/badge.svg?branch=main)
+![CI](https://github.com/iktakahiro/revcatgo/actions/workflows/ci.yml/badge.svg?branch=main)
 
 revcatgo is a lightweight Go helper library that models [RevenueCat](https://www.revenuecat.com) webhook payloads and subscriber API responses with type-safe value objects and small convenience helpers.
 
@@ -10,12 +10,12 @@ revcatgo is a lightweight Go helper library that models [RevenueCat](https://www
 - Strongly typed wrappers for event type, environment, store, and other enumerations to avoid typo-prone string comparisons.
 - Utility methods for common webhook workflows such as checking expiration windows, collecting related user identifiers, and inspecting sandbox events.
 - Data structures that mirror RevenueCat’s subscriber API responses, ready for direct decoding with the standard library.
-- Works with Go 1.25+ and has a small dependency footprint (only `gopkg.in/guregu/null.v4` for nullable values).
+- Works with Go 1.26+ and has a small dependency footprint (only `gopkg.in/guregu/null.v4` for nullable values).
 
 ## Installation
 
 ```bash
-go get github.com/iktakahiro/revcatgo@v1.1.0
+go get github.com/iktakahiro/revcatgo@latest
 ```
 
 ## Quick start
@@ -102,8 +102,8 @@ func decodeSubscriberResponse(body io.Reader) (*revcatgo.SubscriberResponse, err
 Common helper targets:
 
 ```bash
-# Download/update tool binaries declared via the go.mod tool directives
-make tools
+# Install the pinned Go toolchain and golangci-lint binary
+mise install
 
 # Format Go sources via golangci-lint fmt (requires golangci-lint v2+)
 make fmt
@@ -120,7 +120,7 @@ make vulncheck
 
 ## References
 
-- RevenueCat webhooks documentation: <https://docs.revenuecat.com/docs/webhooks>
+- RevenueCat webhooks documentation: <https://www.revenuecat.com/docs/integrations/webhooks>
 
 ## License
 
