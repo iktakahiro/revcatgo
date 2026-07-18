@@ -75,6 +75,6 @@ func TestPriceUnMarshal(t *testing.T) {
 
 func TestNullPriceIsNotAFreeTrial(t *testing.T) {
 	var p price
-	assert.NoError(t, json.Unmarshal([]byte(`null`), &p))
+	require.NoError(t, json.Unmarshal([]byte(`null`), &p))
 	assert.False(t, p.IsFreeTrial())
 }

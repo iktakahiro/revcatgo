@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewEventType(t *testing.T) {
@@ -64,10 +65,10 @@ func TestEventTypeUnMarshal(t *testing.T) {
 
 func TestEventTypeIsKnown(t *testing.T) {
 	var known eventType
-	assert.NoError(t, json.Unmarshal([]byte(`"PURCHASE_REDEEMED"`), &known))
+	require.NoError(t, json.Unmarshal([]byte(`"PURCHASE_REDEEMED"`), &known))
 	assert.True(t, known.IsKnown())
 
 	var custom eventType
-	assert.NoError(t, json.Unmarshal([]byte(`"MY_CUSTOM_PAYWALL_EVENT"`), &custom))
+	require.NoError(t, json.Unmarshal([]byte(`"MY_CUSTOM_PAYWALL_EVENT"`), &custom))
 	assert.False(t, custom.IsKnown())
 }

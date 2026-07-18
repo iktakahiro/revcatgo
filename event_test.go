@@ -121,7 +121,7 @@ func TestUnmarshalInitialPurchaseEvent(t *testing.T) {
 	assert.Equal(t, "exp_a", event.Experiments[0].ID)
 	assert.Equal(t, int64(1605256000000), event.Experiments[0].EnrolledAt.Int64())
 	assert.Equal(t, "summer", event.Metadata["campaign"])
-	assert.Equal(t, 10.5, event.DiscountPercentage.Float64)
+	assert.InDelta(t, 10.5, event.DiscountPercentage.Float64, 1e-9)
 	assert.Equal(t, int64(2), event.Quantity.Int64)
 	assert.Equal(t, int64(1605256730251), event.ExpirationAt.Int64())
 	assert.True(t, event.HasEntitlementID("premium"))
@@ -242,7 +242,7 @@ func TestUnmarshalExperimentEnrollmentEvent(t *testing.T) {
 	}`)
 
 	var event Event
-	assert.NoError(t, json.Unmarshal(data, &event))
+	require.NoError(t, json.Unmarshal(data, &event))
 	assert.Equal(t, EventTypeExperimentEnrollment, event.Type.String())
 	assert.Equal(t, "prexpca1234abcd", event.ExperimentID)
 	assert.Equal(t, "b", event.ExperimentVariant)
@@ -265,7 +265,7 @@ func TestUnmarshalPurchaseRedeemedEvent(t *testing.T) {
 	}`)
 
 	var event Event
-	assert.NoError(t, json.Unmarshal(data, &event))
+	require.NoError(t, json.Unmarshal(data, &event))
 	assert.Equal(t, EventTypePurchaseRedeemed, event.Type.String())
 	assert.Equal(t, "RC_BILLING", event.Store.String())
 	assert.Equal(t, []string{"web-user"}, event.RedeemedFrom)
@@ -301,7 +301,7 @@ func TestUnmarshalPaywallComponentEvent(t *testing.T) {
 	}`)
 
 	var event Event
-	assert.NoError(t, json.Unmarshal(data, &event))
+	require.NoError(t, json.Unmarshal(data, &event))
 	assert.Equal(t, EventTypePaywallComponentInteracted, event.Type.String())
 	assert.Equal(t, "paywall-event-123", event.PaywallEventID)
 	assert.Equal(t, "pw_123", event.PaywallID)
@@ -314,7 +314,7 @@ func TestUnmarshalPaywallComponentEvent(t *testing.T) {
 	assert.Equal(t, "$rc_annual", event.DestinationPackageID)
 
 	roundTrip, err := json.Marshal(event)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(roundTrip), `"$email":"customer@example.com"`)
 }
 
