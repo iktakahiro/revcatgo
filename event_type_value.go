@@ -43,6 +43,24 @@ const (
 	EventTypeInvoiceIssuance = "INVOICE_ISSUANCE"
 	// EventTypeVirtualCurrencyTransaction indicates a virtual currency adjustment event.
 	EventTypeVirtualCurrencyTransaction = "VIRTUAL_CURRENCY_TRANSACTION"
+	// EventTypeExperimentEnrollment indicates that a customer entered an experiment.
+	EventTypeExperimentEnrollment = "EXPERIMENT_ENROLLMENT"
+	// EventTypePurchaseRedeemed indicates that a web purchase was redeemed in an app.
+	EventTypePurchaseRedeemed = "PURCHASE_REDEEMED"
+	// EventTypePaywallImpression indicates that a RevenueCat Paywall was displayed.
+	EventTypePaywallImpression = "PAYWALL_IMPRESSION"
+	// EventTypePaywallClose indicates that a RevenueCat Paywall was closed.
+	EventTypePaywallClose = "PAYWALL_CLOSE"
+	// EventTypePaywallCancel indicates that payment confirmation on a paywall was dismissed.
+	EventTypePaywallCancel = "PAYWALL_CANCEL"
+	// EventTypePaywallExitOffer indicates that an exit offer was displayed on a paywall.
+	EventTypePaywallExitOffer = "PAYWALL_EXIT_OFFER"
+	// EventTypePaywallComponentInteracted indicates interaction with a paywall component.
+	EventTypePaywallComponentInteracted = "PAYWALL_COMPONENT_INTERACTED"
+	// EventTypePriceIncreaseConsentRequired indicates that a price increase needs customer consent.
+	EventTypePriceIncreaseConsentRequired = "PRICE_INCREASE_CONSENT_REQUIRED"
+	// EventTypePriceIncreaseConsentApproved indicates that a customer approved a price increase.
+	EventTypePriceIncreaseConsentApproved = "PRICE_INCREASE_CONSENT_APPROVED"
 )
 
 var validEventTypeValues = []string{
@@ -63,6 +81,15 @@ var validEventTypeValues = []string{
 	EventTypeRefundReversed,
 	EventTypeInvoiceIssuance,
 	EventTypeVirtualCurrencyTransaction,
+	EventTypeExperimentEnrollment,
+	EventTypePurchaseRedeemed,
+	EventTypePaywallImpression,
+	EventTypePaywallClose,
+	EventTypePaywallCancel,
+	EventTypePaywallExitOffer,
+	EventTypePaywallComponentInteracted,
+	EventTypePriceIncreaseConsentRequired,
+	EventTypePriceIncreaseConsentApproved,
 }
 
 type eventType struct {
@@ -80,6 +107,12 @@ func (e eventType) String() string {
 	return e.value.ValueOrZero()
 }
 
+// IsKnown reports whether RevenueCat documents the event type as a built-in event.
+// Custom Paywall event names and future event types return false but remain decodable.
+func (e eventType) IsKnown() bool {
+	return contains(validEventTypeValues, e.String())
+}
+
 // MarshalJSON serializes an event type to JSON.
 func (e eventType) MarshalJSON() ([]byte, error) {
 	return e.value.MarshalJSON()
@@ -95,11 +128,10 @@ func (e *eventType) UnmarshalJSON(b []byte) error {
 	if !v.value.Valid {
 		return errors.New("type is a required field")
 	}
-	_e, err := newEventType(v.value.ValueOrZero())
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal the value of type: %w", err)
+	if v.value.ValueOrZero() == "" {
+		return errors.New("type must not be empty")
 	}
-	e.value = _e.value
+	e.value = v.value
 
 	return nil
 }
