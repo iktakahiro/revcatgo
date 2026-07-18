@@ -1,22 +1,9 @@
-GO := go
+GO ?= go
 
-GOLANGCI := $(GO) tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
-GOVULNCHECK := $(GO) tool golang.org/x/vuln/cmd/govulncheck
+GOLANGCI ?= golangci-lint
+GOVULNCHECK ?= $(GO) tool govulncheck
 
-TOOLS := \
-	github.com/golangci/golangci-lint/v2/cmd/golangci-lint \
-	github.com/mgechev/revive \
-	golang.org/x/tools/cmd/goimports \
-	golang.org/x/vuln/cmd/govulncheck \
-	honnef.co/go/tools/cmd/staticcheck \
-	mvdan.cc/gofumpt
-
-.PHONY: tools deps update tidy fmt lint test vulncheck
-
-tools:
-	@for tool in $(TOOLS); do \
-		$(GO) get -tool $$tool@latest; \
-	done
+.PHONY: deps update tidy tidy-check fmt fmt-check lint test vulncheck
 
 deps:
 	$(GO) mod download
@@ -28,14 +15,20 @@ update:
 tidy:
 	$(GO) mod tidy
 
+tidy-check:
+	$(GO) mod tidy -diff
+
 fmt:
 	$(GOLANGCI) fmt ./...
 
+fmt-check:
+	$(GOLANGCI) fmt --diff ./...
+
 lint:
-	$(GOLANGCI) run ./...
+	$(GOLANGCI) run --modules-download-mode=readonly ./...
 
 test:
-	ENV='test' $(GO) test -v ./... -count=1 -cover
+	ENV='test' $(GO) test -race -cover ./... -count=1
 
 vulncheck:
 	$(GOVULNCHECK) ./...

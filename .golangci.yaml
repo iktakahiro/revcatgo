@@ -15,15 +15,12 @@ formatters:
 linters:
   default: standard
   enable:
-    - staticcheck
+    - errorlint
+    - misspell
+    - modernize
     - revive
-    - errcheck
-    - ineffassign
-    - govet
+    - testifylint
   settings:
-    staticcheck:
-      checks:
-        - SA*
     govet:
       enable:
         - nilfunc
