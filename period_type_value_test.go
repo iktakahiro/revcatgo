@@ -16,7 +16,8 @@ func TestNewPeriodType(t *testing.T) {
 	}{
 		{"TRIAL", "TRIAL", nil},
 		{"NORMAL", "NORMAL", nil},
-		{"INVALID", "", errors.New("periodType value should be one of the following: TRIAL,INTRO,NORMAL,PROMOTIONAL, got INVALID")},
+		{"PREPAID", "PREPAID", nil},
+		{"INVALID", "", errors.New("periodType value should be one of the following: TRIAL,INTRO,NORMAL,PROMOTIONAL,PREPAID, got INVALID")},
 	}
 
 	for _, c := range cases {
@@ -38,6 +39,7 @@ func TestPeriodTypeUnMarshal(t *testing.T) {
 	}{
 		{`"TRIAL"`, "TRIAL", nil},
 		{`"NORMAL"`, "NORMAL", nil},
+		{`"PREPAID"`, "PREPAID", nil},
 		{`"INVALID"`, "", errors.New("")},
 		{`1`, "", errors.New("")},
 		{`null`, "", errors.New("")},

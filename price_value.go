@@ -20,7 +20,7 @@ func (p price) Float64() float64 {
 }
 
 func (p price) IsFreeTrial() bool {
-	return p.value.Float64 == 0
+	return p.value.Valid && p.value.Float64 == 0
 }
 
 func (p price) MarshalJSON() ([]byte, error) {

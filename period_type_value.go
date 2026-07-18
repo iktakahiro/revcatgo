@@ -17,6 +17,8 @@ const (
 	PeriodTypeNormal = "NORMAL"
 	// PeriodTypePromotional identifies a promotional period.
 	PeriodTypePromotional = "PROMOTIONAL"
+	// PeriodTypePrepaid identifies a prepaid subscription period.
+	PeriodTypePrepaid = "PREPAID"
 )
 
 var validPeriodTypeValues = []string{
@@ -24,6 +26,7 @@ var validPeriodTypeValues = []string{
 	PeriodTypeIntro,
 	PeriodTypeNormal,
 	PeriodTypePromotional,
+	PeriodTypePrepaid,
 }
 
 type periodType struct {

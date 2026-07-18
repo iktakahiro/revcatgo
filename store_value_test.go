@@ -16,6 +16,11 @@ func TestNewStore(t *testing.T) {
 	}{
 		{"PLAY_STORE", "PLAY_STORE", nil},
 		{"APP_STORE", "APP_STORE", nil},
+		{"AMAZON", "AMAZON", nil},
+		{"PADDLE", "PADDLE", nil},
+		{"RC_BILLING", "RC_BILLING", nil},
+		{"ROKU", "ROKU", nil},
+		{"TEST_STORE", "TEST_STORE", nil},
 		{"INVALID", "", errors.New("store value should be one of the following: AMAZON, APP_STORE, MAC_APP_STORE, PADDLE, PLAY_STORE, RC_BILLING, ROKU, PROMOTIONAL, STRIPE, TEST_STORE, got INVALID")},
 	}
 
@@ -38,6 +43,9 @@ func TestStoreUnMarshal(t *testing.T) {
 	}{
 		{`"PLAY_STORE"`, "PLAY_STORE", nil},
 		{`"APP_STORE"`, "APP_STORE", nil},
+		{`"amazon"`, "AMAZON", nil},
+		{`"paddle"`, "PADDLE", nil},
+		{`"rc_billing"`, "RC_BILLING", nil},
 		{`"INVALID"`, "", errors.New("")},
 		{`1`, "", errors.New("")},
 		{`null`, "", errors.New("")},
