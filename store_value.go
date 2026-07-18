@@ -15,24 +15,37 @@ type store struct {
 const (
 	// StoreAmazon identifies purchases originating from the Amazon Appstore.
 	StoreAmazon = "AMAZON"
-	// StorePlayStore identifies purchases originating from the Google Play Store.
-	StorePlayStore = "PLAY_STORE"
 	// StoreAppStore identifies purchases originating from the Apple App Store.
 	StoreAppStore = "APP_STORE"
-	// StoreStripe identifies purchases processed through Stripe.
-	StoreStripe = "STRIPE"
 	// StoreMacAppStore identifies purchases originating from the Mac App Store.
 	StoreMacAppStore = "MAC_APP_STORE"
+	// StorePaddle identifies purchases originating from the Paddle Store.
+	StorePaddle = "PADDLE"
+	// StorePlayStore identifies purchases originating from the Google Play Store.
+	StorePlayStore = "PLAY_STORE"
+	// StoreRCBilling identifies purchases granted via the Revenue Cat web Store.
+	StoreRCBilling = "RC_BILLING"
+	// StoreRoku identifies purchases granted via the Roku Store.
+	StoreRoku = "ROKU"
 	// StorePromotional identifies purchases granted via promotional credits.
 	StorePromotional = "PROMOTIONAL"
+	// StoreStripe identifies purchases processed through Stripe.
+	StoreStripe = "STRIPE"
+	// StoreTestStore identifies purchases via the test store
+	StoreTestStore = "TEST_STORE"
 )
 
 var validStoreValues = []string{
-	StorePlayStore,
+	StoreAmazon,
 	StoreAppStore,
-	StoreStripe,
 	StoreMacAppStore,
+	StorePaddle,
+	StorePlayStore,
+	StoreRCBilling,
+	StoreRoku,
 	StorePromotional,
+	StoreStripe,
+	StoreTestStore,
 }
 
 func newStore(s string) (*store, error) {
