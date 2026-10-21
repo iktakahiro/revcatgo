@@ -35,26 +35,57 @@ func TestEnvironmentUnMarshal(t *testing.T) {
 	cases := []struct {
 		in       string
 		expected string
-		err      error
+		known    bool
+		wantErr  bool
 	}{
-		{`"SANDBOX"`, "SANDBOX", nil},
-		{`"PRODUCTION"`, "PRODUCTION", nil},
-		{`"INVALID"`, "", errors.New("")},
-		{`1`, "", errors.New("")},
-		{`null`, "", errors.New("")},
+		{`"SANDBOX"`, "SANDBOX", true, false},
+		{`"PRODUCTION"`, "PRODUCTION", true, false},
+		{`"STAGING"`, "STAGING", false, false},
+		{`"sandbox"`, "sandbox", false, false},
+		{`""`, "", false, false},
+		{`null`, "", false, false},
+		{`1`, "", false, true},
 	}
 
 	for _, c := range cases {
 		var e environment
-		b := []byte(c.in)
-		err := json.Unmarshal(b, &e)
-
-		assert.Equal(t, c.expected, e.String())
-		if c.err == nil {
-			assert.NoError(t, err)
-		} else {
-			assert.Error(t, err)
+		err := json.Unmarshal([]byte(c.in), &e)
+		if c.wantErr {
+			require.Error(t, err, c.in)
+			continue
 		}
+		require.NoError(t, err, c.in)
+		assert.Equal(t, c.expected, e.String(), c.in)
+		assert.Equal(t, c.known, e.IsKnown(), c.in)
+	}
+}
+
+func TestEnvironmentIsKnown(t *testing.T) {
+	known, err := newEnvironment(EnvironmentProduction)
+	require.NoError(t, err)
+	assert.True(t, known.IsKnown())
+
+	var unknown environment
+	require.NoError(t, json.Unmarshal([]byte(`"STAGING"`), &unknown))
+	assert.False(t, unknown.IsKnown())
+	assert.Equal(t, "STAGING", unknown.String())
+
+	var zero environment
+	assert.False(t, zero.IsKnown())
+}
+
+func TestEnvironmentMarshalRoundTrip(t *testing.T) {
+	for _, in := range []string{
+		`"PRODUCTION"`,
+		`"STAGING"`,
+		`null`,
+	} {
+		var e environment
+		require.NoError(t, json.Unmarshal([]byte(in), &e))
+
+		out, err := json.Marshal(e)
+		require.NoError(t, err)
+		assert.JSONEq(t, in, string(out))
 	}
 }
 

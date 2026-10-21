@@ -1,0 +1,11 @@
+{
+  "event": {
+    "event_timestamp_ms": 1744824815307,
+    "app_user_id": "41234567890",
+    "store": "APP_STORE",
+    "type": "TEMPORARY_ENTITLEMENT_GRANT",
+    "id": "12345678-1234-1234-1234-123456789012",
+    "app_id": "1234567890"
+  },
+  "api_version": "1.0"
+}

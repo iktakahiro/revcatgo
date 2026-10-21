@@ -1,7 +1,6 @@
 package revcatgo
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -59,25 +58,25 @@ func (s *store) String() string {
 	return s.value.ValueOrZero()
 }
 
+// IsKnown reports whether RevenueCat documents the store as one of the Store constants.
+// Stores added by RevenueCat later (and null values) return false but remain decodable.
+func (s store) IsKnown() bool {
+	return contains(validStoreValues, s.value.ValueOrZero())
+}
+
 func (s store) MarshalJSON() ([]byte, error) {
 	return s.value.MarshalJSON()
 }
 
 // UnmarshalJSON deserializes a store from JSON.
+// JSON null and empty strings decode to the zero value, and undocumented values are
+// preserved so that new RevenueCat values do not break decoding; see IsKnown.
 func (s *store) UnmarshalJSON(b []byte) error {
-	v := &store{}
-	err := v.value.UnmarshalJSON(b)
+	v, err := unmarshalEnumValue(b, true)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of store: %w", err)
 	}
-	if !v.value.Valid {
-		return errors.New("store is a required field")
-	}
-	_s, err := newStore(strings.ToUpper(v.value.ValueOrZero()))
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal the value of store: %w", err)
-	}
-	s.value = _s.value
+	s.value = v
 
 	return nil
 }

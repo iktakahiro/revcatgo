@@ -1,7 +1,6 @@
 package revcatgo
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -54,26 +53,26 @@ func (c cancelReason) NullString() null.String {
 	return c.value
 }
 
+// IsKnown reports whether RevenueCat documents the reason as one of the CancelReason constants.
+// Reasons added by RevenueCat later (and null values) return false but remain decodable.
+func (c cancelReason) IsKnown() bool {
+	return contains(validCancelReasonValues, c.value.ValueOrZero())
+}
+
 // MarshalJSON serializes a cancellation reason to JSON.
 func (c cancelReason) MarshalJSON() ([]byte, error) {
 	return c.value.MarshalJSON()
 }
 
 // UnmarshalJSON deserializes a cancellation reason from JSON.
+// JSON null and empty strings decode to the zero value, and undocumented values are
+// preserved so that new RevenueCat values do not break decoding; see IsKnown.
 func (c *cancelReason) UnmarshalJSON(b []byte) error {
-	v := &cancelReason{}
-	err := v.value.UnmarshalJSON(b)
+	v, err := unmarshalEnumValue(b, false)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of cancel_reason: %w", err)
 	}
-	if !v.value.Valid {
-		return errors.New("cancel_reason is a required field")
-	}
-	_c, err := newCancelReason(v.value.ValueOrZero())
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal the value of cancel_reason: %w", err)
-	}
-	c.value = _c.value
+	c.value = v
 
 	return nil
 }
