@@ -9,7 +9,7 @@ revcatgo is a lightweight Go helper library that models [RevenueCat](https://www
 
 - Strongly typed wrappers for event type, environment, store, and other enumerations to avoid typo-prone string comparisons.
 - Coverage for the current RevenueCat webhook families, including experiment enrollment, purchase redemption, Paywall UI, price increase consent, and virtual currency events.
-- Forward-compatible decoding for custom Paywall event names and new RevenueCat event types.
+- Forward-compatible decoding: custom Paywall event names, new event types, unknown store, environment, period type, and cancel/expiration reason values, and `null` values decode without error; check documented values with `IsKnown()`.
 - HMAC-SHA256 webhook signature verification with optional replay protection.
 - Utility methods for common webhook workflows such as checking expiration windows, collecting related user identifiers, and inspecting sandbox events.
 - Data structures that mirror RevenueCat’s Subscriber API v1 responses, ready for direct decoding with the standard library.
