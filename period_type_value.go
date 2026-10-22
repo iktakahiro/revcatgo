@@ -1,7 +1,6 @@
 package revcatgo
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -44,25 +43,25 @@ func (p periodType) String() string {
 	return p.value.ValueOrZero()
 }
 
+// IsKnown reports whether RevenueCat documents the period type as one of the PeriodType constants.
+// Period types added by RevenueCat later (and null values) return false but remain decodable.
+func (p periodType) IsKnown() bool {
+	return contains(validPeriodTypeValues, p.value.ValueOrZero())
+}
+
 func (p periodType) MarshalJSON() ([]byte, error) {
 	return p.value.MarshalJSON()
 }
 
 // UnmarshalJSON deserializes a period type from JSON.
+// JSON null and empty strings decode to the zero value, and undocumented values are
+// preserved so that new RevenueCat values do not break decoding; see IsKnown.
 func (p *periodType) UnmarshalJSON(b []byte) error {
-	v := &periodType{}
-	err := v.value.UnmarshalJSON(b)
+	v, err := unmarshalEnumValue(b, true)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of period_type: %w", err)
 	}
-	if !v.value.Valid {
-		return errors.New("period_type is a required field")
-	}
-	_p, err := newPeriodType(strings.ToUpper(v.value.ValueOrZero()))
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal the value of period_type: %w", err)
-	}
-	p.value = _p.value
+	p.value = v
 
 	return nil
 }

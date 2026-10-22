@@ -1,7 +1,6 @@
 package revcatgo
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -49,26 +48,26 @@ func (e *environment) IsSandBox() bool {
 	return e.IsSandbox()
 }
 
+// IsKnown reports whether RevenueCat documents the environment as one of the Environment constants.
+// Environments added by RevenueCat later (and null values) return false but remain decodable.
+func (e environment) IsKnown() bool {
+	return contains(validEnvironmentValues, e.value.ValueOrZero())
+}
+
 // MarshalJSON serializes an environment to JSON.
 func (e environment) MarshalJSON() ([]byte, error) {
 	return e.value.MarshalJSON()
 }
 
 // UnmarshalJSON deserializes an environment from JSON.
+// JSON null and empty strings decode to the zero value, and undocumented values are
+// preserved so that new RevenueCat values do not break decoding; see IsKnown.
 func (e *environment) UnmarshalJSON(b []byte) error {
-	v := &environment{}
-	err := v.value.UnmarshalJSON(b)
+	v, err := unmarshalEnumValue(b, false)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal the value of environment: %w", err)
 	}
-	if !v.value.Valid {
-		return errors.New("environment is a required field")
-	}
-	_e, err := newEnvironment(v.value.ValueOrZero())
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal the value of environment: %w", err)
-	}
-	e.value = _e.value
+	e.value = v
 
 	return nil
 }

@@ -82,3 +82,40 @@ func TestUnmarshalSubscriberResponse(t *testing.T) {
 	assert.Equal(t, PeriodTypePrepaid, monthly.PeriodType.String())
 	assert.Equal(t, "1000000652379790", monthly.StoreTransactionID.String())
 }
+
+func TestUnmarshalSubscriberWithNullAndUnknownEnums(t *testing.T) {
+	data := []byte(`{
+		"subscriptions":{
+			"galaxy":{
+				"period_type":null,
+				"store":"galaxy"
+			},
+			"unknown":{
+				"period_type":"future_type",
+				"store":null
+			}
+		},
+		"non_subscriptions":{
+			"coins":[{"id":"np_1","store":null},{"id":"np_2","store":"galaxy"}]
+		}
+	}`)
+
+	var subscriber Subscriber
+	require.NoError(t, json.Unmarshal(data, &subscriber))
+
+	galaxy := subscriber.Subscriptions["galaxy"]
+	assert.Equal(t, "GALAXY", galaxy.Store.String())
+	assert.False(t, galaxy.Store.IsKnown())
+	assert.Empty(t, galaxy.PeriodType.String())
+	assert.False(t, galaxy.PeriodType.IsKnown())
+
+	unknown := subscriber.Subscriptions["unknown"]
+	assert.Empty(t, unknown.Store.String())
+	assert.Equal(t, "FUTURE_TYPE", unknown.PeriodType.String())
+	assert.False(t, unknown.PeriodType.IsKnown())
+
+	coins := subscriber.NonSubscription["coins"]
+	require.Len(t, coins, 2)
+	assert.Empty(t, coins[0].Store.String())
+	assert.Equal(t, "GALAXY", coins[1].Store.String())
+}

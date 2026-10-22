@@ -35,26 +35,57 @@ func TestCancelReasonUnMarshal(t *testing.T) {
 	cases := []struct {
 		in       string
 		expected string
-		err      error
+		known    bool
+		wantErr  bool
 	}{
-		{`"UNSUBSCRIBE"`, "UNSUBSCRIBE", nil},
-		{`"BILLING_ERROR"`, "BILLING_ERROR", nil},
-		{`"INVALID"`, "", errors.New("")},
-		{`1`, "", errors.New("")},
-		{`null`, "", errors.New("")},
+		{`"UNSUBSCRIBE"`, "UNSUBSCRIBE", true, false},
+		{`"BILLING_ERROR"`, "BILLING_ERROR", true, false},
+		{`"NEW_REASON"`, "NEW_REASON", false, false},
+		{`"unsubscribe"`, "unsubscribe", false, false},
+		{`""`, "", false, false},
+		{`null`, "", false, false},
+		{`1`, "", false, true},
 	}
 
 	for _, c := range cases {
 		var cr cancelReason
-		b := []byte(c.in)
-		err := json.Unmarshal(b, &cr)
-
-		assert.Equal(t, c.expected, cr.String())
-		if c.err == nil {
-			assert.NoError(t, err)
-		} else {
-			assert.Error(t, err)
+		err := json.Unmarshal([]byte(c.in), &cr)
+		if c.wantErr {
+			require.Error(t, err, c.in)
+			continue
 		}
+		require.NoError(t, err, c.in)
+		assert.Equal(t, c.expected, cr.String(), c.in)
+		assert.Equal(t, c.known, cr.IsKnown(), c.in)
+	}
+}
+
+func TestCancelReasonIsKnown(t *testing.T) {
+	known, err := newCancelReason(CancelReasonUnsubscribe)
+	require.NoError(t, err)
+	assert.True(t, known.IsKnown())
+
+	var unknown cancelReason
+	require.NoError(t, json.Unmarshal([]byte(`"NEW_REASON"`), &unknown))
+	assert.False(t, unknown.IsKnown())
+	assert.Equal(t, "NEW_REASON", unknown.String())
+
+	var zero cancelReason
+	assert.False(t, zero.IsKnown())
+}
+
+func TestCancelReasonMarshalRoundTrip(t *testing.T) {
+	for _, in := range []string{
+		`"UNSUBSCRIBE"`,
+		`"NEW_REASON"`,
+		`null`,
+	} {
+		var cr cancelReason
+		require.NoError(t, json.Unmarshal([]byte(in), &cr))
+
+		out, err := json.Marshal(cr)
+		require.NoError(t, err)
+		assert.JSONEq(t, in, string(out))
 	}
 }
 

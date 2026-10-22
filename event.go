@@ -18,15 +18,17 @@ type WebhookEvent struct {
 
 // Event represents an Event of RevenueCat webhook
 type Event struct {
-	ID                       string               `json:"id"`
-	AppID                    string               `json:"app_id"`
-	Type                     eventType            `json:"type"`
-	EventTimestampAt         milliseconds         `json:"event_timestamp_ms"`
-	AppUserID                string               `json:"app_user_id"`
-	Aliases                  []string             `json:"aliases"`
-	OriginalAppUserID        string               `json:"original_app_user_id"`
-	ProductID                string               `json:"product_id"`
-	EntitlementIDs           []string             `json:"entitlement_ids"`
+	ID                string       `json:"id"`
+	AppID             string       `json:"app_id"`
+	Type              eventType    `json:"type"`
+	EventTimestampAt  milliseconds `json:"event_timestamp_ms"`
+	AppUserID         string       `json:"app_user_id"`
+	Aliases           []string     `json:"aliases"`
+	OriginalAppUserID string       `json:"original_app_user_id"`
+	ProductID         string       `json:"product_id"`
+	EntitlementIDs    []string     `json:"entitlement_ids"`
+	// Deprecated: RevenueCat deprecated entitlement_id; use EntitlementIDs.
+	EntitlementID            null.String          `json:"entitlement_id"`
 	PeriodType               periodType           `json:"period_type"`
 	PurchasedAt              milliseconds         `json:"purchased_at_ms"`
 	GracePeriodExpirationAt  milliseconds         `json:"grace_period_expiration_at_ms"`

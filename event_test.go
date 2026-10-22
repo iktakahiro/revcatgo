@@ -26,7 +26,50 @@ func TestNewEvent(t *testing.T) {
 
 	b = []byte(`{"store":null}`)
 	err = json.Unmarshal(b, &event)
-	assert.EqualError(t, err, "store is a required field")
+	require.NoError(t, err)
+	assert.Empty(t, event.Store.String())
+	assert.False(t, event.Store.IsKnown())
+}
+
+func TestEventForwardCompatibleEnums(t *testing.T) {
+	b := []byte(`{
+		"type":"INITIAL_PURCHASE",
+		"store":"galaxy",
+		"environment":"STAGING",
+		"purchase_environment":null,
+		"period_type":"future_type",
+		"cancel_reason":"NEW_REASON",
+		"expiration_reason":null
+	}`)
+
+	var event Event
+	require.NoError(t, json.Unmarshal(b, &event))
+
+	assert.Equal(t, "GALAXY", event.Store.String())
+	assert.False(t, event.Store.IsKnown())
+	assert.Equal(t, "STAGING", event.Environment.String())
+	assert.False(t, event.Environment.IsKnown())
+	assert.False(t, event.Environment.IsProduction())
+	assert.False(t, event.Environment.IsSandbox())
+	assert.Empty(t, event.PurchaseEnvironment.String())
+	assert.Equal(t, "FUTURE_TYPE", event.PeriodType.String())
+	assert.False(t, event.PeriodType.IsKnown())
+	assert.Equal(t, "NEW_REASON", event.CancelReason.String())
+	assert.False(t, event.CancelReason.IsKnown())
+	assert.False(t, event.ExpirationReason.NullString().Valid)
+
+	out, err := json.Marshal(event)
+	require.NoError(t, err)
+
+	var decoded map[string]any
+	require.NoError(t, json.Unmarshal(out, &decoded))
+	assert.Equal(t, "GALAXY", decoded["store"])
+	assert.Equal(t, "STAGING", decoded["environment"])
+	assert.Equal(t, "FUTURE_TYPE", decoded["period_type"])
+	assert.Equal(t, "NEW_REASON", decoded["cancel_reason"])
+	assert.Nil(t, decoded["expiration_reason"])
+	assert.Nil(t, decoded["purchase_environment"])
+	assert.Nil(t, decoded["entitlement_id"])
 }
 
 func TestEventIsExpired(t *testing.T) {
