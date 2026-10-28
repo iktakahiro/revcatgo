@@ -1,6 +1,7 @@
 package revcatgo
 
 import (
+	"errors"
 	"strconv"
 	"testing"
 	"time"
@@ -121,10 +122,10 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 				test.tolerance,
 				testNow,
 			)
-			assert.ErrorContains(t, err, test.wantError)
+			require.ErrorContains(t, err, test.wantError)
 			require.ErrorIs(t, err, test.wantIs)
 			for _, other := range allWebhookSignatureErrors {
-				if other != test.wantIs {
+				if !errors.Is(other, test.wantIs) {
 					assert.NotErrorIs(t, err, other)
 				}
 			}
