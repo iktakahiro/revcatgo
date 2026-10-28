@@ -48,11 +48,12 @@ func (e *malformedWebhookSignatureError) Error() string {
 	return e.message
 }
 
-func (e *malformedWebhookSignatureError) Unwrap() []error {
-	if e.cause == nil {
-		return []error{ErrWebhookSignatureMalformed}
-	}
-	return []error{ErrWebhookSignatureMalformed, e.cause}
+func (e *malformedWebhookSignatureError) Unwrap() error {
+	return e.cause
+}
+
+func (e *malformedWebhookSignatureError) Is(target error) bool {
+	return target == ErrWebhookSignatureMalformed
 }
 
 // VerifyWebhookSignature verifies a RevenueCat webhook HMAC signature against the raw request body.

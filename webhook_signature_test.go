@@ -142,18 +142,35 @@ var allWebhookSignatureErrors = []error{
 }
 
 func TestVerifyWebhookSignatureMalformedTimestampWrapsCause(t *testing.T) {
-	err := verifyWebhookSignatureAt(
-		"t=soon,v1=450a93f016917ae1cb87a06c780abccb13f8ee581865151b824759080a87da91",
-		[]byte(testWebhookBody),
-		"whsec_test",
-		0,
-		time.Unix(1700000000, 0),
-	)
+	for _, test := range []struct {
+		name      string
+		timestamp string
+		cause     error
+	}{
+		{name: "syntax", timestamp: "soon", cause: strconv.ErrSyntax},
+		{name: "overflow", timestamp: "9223372036854775808", cause: strconv.ErrRange},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := verifyWebhookSignatureAt(
+				"t="+test.timestamp+",v1=450a93f016917ae1cb87a06c780abccb13f8ee581865151b824759080a87da91",
+				[]byte(testWebhookBody),
+				"whsec_test",
+				0,
+				time.Unix(1700000000, 0),
+			)
 
-	var numErr *strconv.NumError
-	require.ErrorIs(t, err, ErrWebhookSignatureMalformed)
-	require.ErrorAs(t, err, &numErr)
-	assert.ErrorIs(t, err, strconv.ErrSyntax)
+			var numErr *strconv.NumError
+			require.ErrorIs(t, err, ErrWebhookSignatureMalformed)
+			require.ErrorAs(t, err, &numErr)
+			assert.Same(t, numErr, errors.Unwrap(err))
+			require.ErrorIs(t, err, test.cause)
+			for _, other := range allWebhookSignatureErrors {
+				if !errors.Is(other, ErrWebhookSignatureMalformed) {
+					assert.NotErrorIs(t, err, other)
+				}
+			}
+		})
+	}
 }
 
 func TestVerifyWebhookSignatureChecksSignatureBeforeTimestamp(t *testing.T) {
