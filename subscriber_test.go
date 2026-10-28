@@ -119,3 +119,28 @@ func TestUnmarshalSubscriberWithNullAndUnknownEnums(t *testing.T) {
 	assert.Empty(t, coins[0].Store.String())
 	assert.Equal(t, "GALAXY", coins[1].Store.String())
 }
+
+// The optional fields follow the Customer Info Model OpenAPI schema.
+func TestSubscriberOptionalPurchaseFields(t *testing.T) {
+	data := []byte(`{"subscriber":{"entitlements":{"pro":{"product_plan_identifier":"p1m"},"lifetime":{"product_plan_identifier":null}},"subscriptions":{"monthly":{"display_name":"Monthly","product_plan_identifier":"p1m","price":{"amount":9.99,"currency":"USD"}},"unknown":{"display_name":null,"price":null}},"non_subscriptions":{"coins":[{"display_name":"Coins","price":{"amount":0,"currency":"USD"},"store_transaction_id":"txn_123"},{"price":null,"store_transaction_id":null}]}}}`)
+	var response SubscriberResponse
+	require.NoError(t, json.Unmarshal(data, &response))
+	assert.Equal(t, "p1m", response.Subscriber.Entitlements["pro"].ProductPlanIdentifier.String)
+	assert.False(t, response.Subscriber.Entitlements["lifetime"].ProductPlanIdentifier.Valid)
+	monthly := response.Subscriber.Subscriptions["monthly"]
+	assert.Equal(t, "Monthly", monthly.DisplayName.String)
+	assert.Equal(t, "p1m", monthly.ProductPlanIdentifier.String)
+	require.NotNil(t, monthly.Price)
+	assert.Equal(t, 9.99, monthly.Price.Amount.Float64)
+	assert.Equal(t, "USD", monthly.Price.Currency.String)
+	assert.Nil(t, response.Subscriber.Subscriptions["unknown"].Price)
+	coins := response.Subscriber.NonSubscription["coins"]
+	require.Len(t, coins, 2)
+	assert.Equal(t, "Coins", coins[0].DisplayName.String)
+	require.NotNil(t, coins[0].Price)
+	assert.True(t, coins[0].Price.Amount.Valid)
+	assert.Equal(t, float64(0), coins[0].Price.Amount.Float64)
+	assert.Equal(t, "txn_123", coins[0].StoreTransactionID.String())
+	assert.Nil(t, coins[1].Price)
+	assert.Empty(t, coins[1].StoreTransactionID.String())
+}
