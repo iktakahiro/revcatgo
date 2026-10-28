@@ -33,14 +33,18 @@ type Subscriber struct {
 
 // Entitlement represents a subscriber entitlement granted for a product.
 type Entitlement struct {
-	ProductIdentifier      string    `json:"product_identifier"`
-	ExpiresDate            time.Time `json:"expires_date"`
-	GracePeriodExpiresDate null.Time `json:"grace_period_expires_date"`
-	PurchaseDate           time.Time `json:"purchase_date"`
+	ProductIdentifier      string      `json:"product_identifier"`
+	ProductPlanIdentifier  null.String `json:"product_plan_identifier"`
+	ExpiresDate            time.Time   `json:"expires_date"`
+	GracePeriodExpiresDate null.Time   `json:"grace_period_expires_date"`
+	PurchaseDate           time.Time   `json:"purchase_date"`
 }
 
 // Subscription captures the state of an individual auto-renewing subscription.
 type Subscription struct {
+	DisplayName            null.String        `json:"display_name"`
+	Price                  *SubscriberPrice   `json:"price"`
+	ProductPlanIdentifier  null.String        `json:"product_plan_identifier"`
 	AutoResumeDate         null.Time          `json:"auto_resume_date"`
 	ExpiresDate            time.Time          `json:"expires_date"`
 	GracePeriodExpiresDate null.Time          `json:"grace_period_expires_date"`
@@ -58,10 +62,19 @@ type Subscription struct {
 
 // NonSubscription describes a one-off, non-renewing purchase.
 type NonSubscription struct {
-	ID           string    `json:"id"`
-	Store        store     `json:"store"`
-	PurchaseDate time.Time `json:"purchase_date"`
-	IsSandBox    bool      `json:"is_sandbox"`
+	DisplayName        null.String        `json:"display_name"`
+	Price              *SubscriberPrice   `json:"price"`
+	StoreTransactionID storeTransactionID `json:"store_transaction_id"`
+	ID                 string             `json:"id"`
+	Store              store              `json:"store"`
+	PurchaseDate       time.Time          `json:"purchase_date"`
+	IsSandBox          bool               `json:"is_sandbox"`
+}
+
+// SubscriberPrice describes a purchase price in its transaction currency.
+type SubscriberPrice struct {
+	Amount   null.Float  `json:"amount"`
+	Currency null.String `json:"currency"`
 }
 
 type storeTransactionID struct {
