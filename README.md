@@ -29,44 +29,44 @@ Decode a webhook payload inside your HTTP handler and branch on the event type o
 package webhook
 
 import (
- "encoding/json"
- "log"
- "net/http"
- "time"
+	"encoding/json"
+	"log"
+	"net/http"
+	"time"
 
- "github.com/iktakahiro/revcatgo"
+	"github.com/iktakahiro/revcatgo"
 )
 
 func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
- var hook revcatgo.WebhookEvent
- if err := json.NewDecoder(r.Body).Decode(&hook); err != nil {
-  http.Error(w, err.Error(), http.StatusBadRequest)
-  return
- }
+	var hook revcatgo.WebhookEvent
+	if err := json.NewDecoder(r.Body).Decode(&hook); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
- event := hook.Event
+	event := hook.Event
 
- if !event.Environment.IsProduction() {
-  log.Printf("ignoring %s event from sandbox", event.Environment.String())
-  w.WriteHeader(http.StatusNoContent)
-  return
- }
+	if !event.Environment.IsProduction() {
+		log.Printf("ignoring %s event from sandbox", event.Environment.String())
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 
- switch event.Type.String() {
- case revcatgo.EventTypeInitialPurchase:
-  log.Printf("new subscriber %q", event.AppUserID)
- case revcatgo.EventTypeCancellation:
-  if event.IsExpired(24*time.Hour, nil) {
-   log.Printf("subscription cancelled and grace period elapsed for %q", event.AppUserID)
-  }
- default:
-  log.Printf("received %s for %q", event.Type.String(), event.AppUserID)
- }
+	switch event.Type.String() {
+	case revcatgo.EventTypeInitialPurchase:
+		log.Printf("new subscriber %q", event.AppUserID)
+	case revcatgo.EventTypeCancellation:
+		if event.IsExpired(24*time.Hour, nil) {
+			log.Printf("subscription cancelled and grace period elapsed for %q", event.AppUserID)
+		}
+	default:
+		log.Printf("received %s for %q", event.Type.String(), event.AppUserID)
+	}
 
- allIDs := event.GetAllRelatedUserID() // includes aliases and original user ids
- log.Printf("related identifiers: %v", allIDs)
+	allIDs := event.GetAllRelatedUserID() // includes aliases and original user ids
+	log.Printf("related identifiers: %v", allIDs)
 
- w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent)
 }
 ```
 
@@ -77,25 +77,25 @@ RevenueCat signs the exact request bytes, so verify the raw body before unmarsha
 ```go
 body, err := io.ReadAll(r.Body)
 if err != nil {
- http.Error(w, err.Error(), http.StatusBadRequest)
- return
+	http.Error(w, err.Error(), http.StatusBadRequest)
+	return
 }
 
 err = revcatgo.VerifyWebhookSignature(
- r.Header.Get(revcatgo.WebhookSignatureHeader),
- body,
- webhookSigningSecret,
- 5*time.Minute,
+	r.Header.Get(revcatgo.WebhookSignatureHeader),
+	body,
+	webhookSigningSecret,
+	5*time.Minute,
 )
 if err != nil {
- http.Error(w, "invalid RevenueCat signature", http.StatusUnauthorized)
- return
+	http.Error(w, "invalid RevenueCat signature", http.StatusUnauthorized)
+	return
 }
 
 var hook revcatgo.WebhookEvent
 if err := json.Unmarshal(body, &hook); err != nil {
- http.Error(w, err.Error(), http.StatusBadRequest)
- return
+	http.Error(w, err.Error(), http.StatusBadRequest)
+	return
 }
 ```
 
@@ -105,28 +105,28 @@ The same structs can unmarshal the JSON returned by `GET /v1/subscribers/{app_us
 
 ```go
 import (
- "encoding/json"
- "io"
- "time"
+	"encoding/json"
+	"io"
+	"time"
 
- "github.com/iktakahiro/revcatgo"
+	"github.com/iktakahiro/revcatgo"
 )
 
 func decodeSubscriberResponse(body io.Reader) (*revcatgo.SubscriberResponse, error) {
- var resp revcatgo.SubscriberResponse
- if err := json.NewDecoder(body).Decode(&resp); err != nil {
-  return nil, err
- }
+	var resp revcatgo.SubscriberResponse
+	if err := json.NewDecoder(body).Decode(&resp); err != nil {
+		return nil, err
+	}
 
- for productID, entitlement := range resp.Subscriber.Entitlements {
-  // RevenueCat returns null for lifetime entitlement expiration dates.
-  if !entitlement.ExpiresDate.IsZero() && entitlement.ExpiresDate.Before(time.Now()) {
-   continue
-  }
-  // grant access for productID
- }
+	for entitlementID, entitlement := range resp.Subscriber.Entitlements {
+		// RevenueCat returns null for lifetime entitlement expiration dates.
+		if !entitlement.ExpiresDate.IsZero() && entitlement.ExpiresDate.Before(time.Now()) {
+			continue
+		}
+		// grant access for entitlementID
+	}
 
- return &resp, nil
+	return &resp, nil
 }
 ```
 
