@@ -131,7 +131,7 @@ func TestSubscriberOptionalPurchaseFields(t *testing.T) {
 	assert.Equal(t, "Monthly", monthly.DisplayName.String)
 	assert.Equal(t, "p1m", monthly.ProductPlanIdentifier.String)
 	require.NotNil(t, monthly.Price)
-	assert.Equal(t, 9.99, monthly.Price.Amount.Float64)
+	assert.InDelta(t, 9.99, monthly.Price.Amount.Float64, 0.000001)
 	assert.Equal(t, "USD", monthly.Price.Currency.String)
 	assert.Nil(t, response.Subscriber.Subscriptions["unknown"].Price)
 	coins := response.Subscriber.NonSubscription["coins"]
@@ -139,7 +139,7 @@ func TestSubscriberOptionalPurchaseFields(t *testing.T) {
 	assert.Equal(t, "Coins", coins[0].DisplayName.String)
 	require.NotNil(t, coins[0].Price)
 	assert.True(t, coins[0].Price.Amount.Valid)
-	assert.Equal(t, float64(0), coins[0].Price.Amount.Float64)
+	assert.Zero(t, coins[0].Price.Amount.Float64)
 	assert.Equal(t, "txn_123", coins[0].StoreTransactionID.String())
 	assert.Nil(t, coins[1].Price)
 	assert.Empty(t, coins[1].StoreTransactionID.String())
