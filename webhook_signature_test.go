@@ -1,10 +1,13 @@
 package revcatgo
 
 import (
+	"errors"
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -39,6 +42,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 		secret    string
 		tolerance time.Duration
 		wantError string
+		wantIs    error
 	}{
 		{
 			name:      "modified body",
@@ -47,6 +51,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "whsec_test",
 			tolerance: 5 * time.Minute,
 			wantError: "signature is invalid",
+			wantIs:    ErrWebhookSignatureMismatch,
 		},
 		{
 			name:      "stale timestamp",
@@ -55,6 +60,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "whsec_test",
 			tolerance: time.Minute,
 			wantError: "outside the tolerance",
+			wantIs:    ErrWebhookSignatureExpired,
 		},
 		{
 			name:      "missing version",
@@ -63,6 +69,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "whsec_test",
 			tolerance: 0,
 			wantError: "must contain t and v1",
+			wantIs:    ErrWebhookSignatureMalformed,
 		},
 		{
 			name:      "invalid timestamp",
@@ -71,6 +78,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "whsec_test",
 			tolerance: 0,
 			wantError: "invalid RevenueCat webhook signature timestamp",
+			wantIs:    ErrWebhookSignatureMalformed,
 		},
 		{
 			name:      "invalid digest",
@@ -79,6 +87,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "whsec_test",
 			tolerance: 0,
 			wantError: "must be a SHA-256 hex digest",
+			wantIs:    ErrWebhookSignatureMalformed,
 		},
 		{
 			name:      "empty secret",
@@ -87,6 +96,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "",
 			tolerance: 0,
 			wantError: "secret must not be empty",
+			wantIs:    ErrWebhookSignatureMissingSecret,
 		},
 		{
 			name:      "negative tolerance",
@@ -95,6 +105,7 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 			secret:    "whsec_test",
 			tolerance: -time.Second,
 			wantError: "tolerance must not be negative",
+			wantIs:    ErrWebhookSignatureInvalidTolerance,
 		},
 	}
 
@@ -111,7 +122,79 @@ func TestVerifyWebhookSignatureRejectsInvalidRequests(t *testing.T) {
 				test.tolerance,
 				testNow,
 			)
-			assert.ErrorContains(t, err, test.wantError)
+			require.ErrorContains(t, err, test.wantError)
+			require.ErrorIs(t, err, test.wantIs)
+			for _, other := range allWebhookSignatureErrors {
+				if !errors.Is(other, test.wantIs) {
+					assert.NotErrorIs(t, err, other)
+				}
+			}
 		})
 	}
+}
+
+var allWebhookSignatureErrors = []error{
+	ErrWebhookSignatureMissingSecret,
+	ErrWebhookSignatureInvalidTolerance,
+	ErrWebhookSignatureMalformed,
+	ErrWebhookSignatureMismatch,
+	ErrWebhookSignatureExpired,
+}
+
+func TestVerifyWebhookSignatureMalformedTimestampWrapsCause(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		timestamp string
+		cause     error
+	}{
+		{name: "syntax", timestamp: "soon", cause: strconv.ErrSyntax},
+		{name: "overflow", timestamp: "9223372036854775808", cause: strconv.ErrRange},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := verifyWebhookSignatureAt(
+				"t="+test.timestamp+",v1=450a93f016917ae1cb87a06c780abccb13f8ee581865151b824759080a87da91",
+				[]byte(testWebhookBody),
+				"whsec_test",
+				0,
+				time.Unix(1700000000, 0),
+			)
+
+			var numErr *strconv.NumError
+			require.ErrorIs(t, err, ErrWebhookSignatureMalformed)
+			require.ErrorAs(t, err, &numErr)
+			assert.Same(t, numErr, errors.Unwrap(err))
+			require.ErrorIs(t, err, test.cause)
+			for _, other := range allWebhookSignatureErrors {
+				if !errors.Is(other, ErrWebhookSignatureMalformed) {
+					assert.NotErrorIs(t, err, other)
+				}
+			}
+		})
+	}
+}
+
+func TestVerifyWebhookSignatureChecksSignatureBeforeTimestamp(t *testing.T) {
+	// A stale timestamp with a wrong body must report a mismatch, not expiry.
+	err := verifyWebhookSignatureAt(
+		testWebhookSignature,
+		[]byte(testWebhookBody+" "),
+		"whsec_test",
+		time.Minute,
+		time.Unix(1700000000, 0).Add(time.Hour),
+	)
+
+	require.ErrorIs(t, err, ErrWebhookSignatureMismatch)
+	assert.NotErrorIs(t, err, ErrWebhookSignatureExpired)
+}
+
+func TestVerifyWebhookSignatureExpiredFutureTimestamp(t *testing.T) {
+	err := verifyWebhookSignatureAt(
+		testWebhookSignature,
+		[]byte(testWebhookBody),
+		"whsec_test",
+		time.Minute,
+		time.Unix(1700000000, 0).Add(-time.Hour),
+	)
+
+	assert.ErrorIs(t, err, ErrWebhookSignatureExpired)
 }
