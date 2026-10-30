@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -54,5 +55,24 @@ func TestMilliSecondsUnMarshal(t *testing.T) {
 		} else {
 			assert.EqualError(t, err, c.err.Error())
 		}
+	}
+}
+
+func TestMillisecondsString(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"value", `1605526568123`, "1605526568123"},
+		{"zero", `0`, "0"},
+		{"null", `null`, "0"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var value milliseconds
+			require.NoError(t, json.Unmarshal([]byte(tc.input), &value))
+			assert.Equal(t, tc.want, value.String())
+		})
 	}
 }

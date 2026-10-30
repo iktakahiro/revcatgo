@@ -100,3 +100,21 @@ func TestEnvironmentHelpers(t *testing.T) {
 	assert.True(t, production.IsProduction())
 	assert.False(t, production.IsSandbox())
 }
+
+func TestEnvironmentIsSandBox(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"sandbox", `"SANDBOX"`, true},
+		{"production", `"PRODUCTION"`, false},
+		{"null", `null`, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var value environment
+			require.NoError(t, json.Unmarshal([]byte(tc.input), &value))
+			assert.Equal(t, tc.want, value.IsSandBox())
+		})
+	}
+}
