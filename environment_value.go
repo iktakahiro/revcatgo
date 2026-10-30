@@ -43,6 +43,7 @@ func (e *environment) IsSandbox() bool {
 }
 
 // IsSandBox reports whether the environment is sandboxed.
+//
 // Deprecated: use IsSandbox.
 func (e *environment) IsSandBox() bool {
 	return e.IsSandbox()
