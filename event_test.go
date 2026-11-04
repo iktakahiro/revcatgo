@@ -410,6 +410,12 @@ func TestEvent_AffectedUserIDs(t *testing.T) {
 		assert.Equal(t, e.GetAllRelatedUserID(), e.AffectedUserIDs())
 	})
 
+	t.Run("empty alias is kept by GetAllRelatedUserID but dropped by AffectedUserIDs", func(t *testing.T) {
+		e := Event{Aliases: []string{""}}
+		assert.Equal(t, []string{""}, e.GetAllRelatedUserID())
+		assert.Nil(t, e.AffectedUserIDs())
+	})
+
 	tests := []struct {
 		name  string
 		event Event

@@ -66,7 +66,7 @@ func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 	allIDs := event.GetAllRelatedUserID() // includes aliases and original user ids
 	log.Printf("related identifiers: %v", allIDs)
 
-	// Also covers transferred_from/to (TRANSFER) and redeemed_from/by (PURCHASE_REDEEMED).
+	// Also covers transferred_from/to and redeemed_from/by, in addition to the above.
 	log.Printf("affected users: %v", event.AffectedUserIDs())
 
 	w.WriteHeader(http.StatusNoContent)
