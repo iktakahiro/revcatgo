@@ -2,6 +2,8 @@ package revcatgo
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -370,4 +372,73 @@ func TestEvent_GetAllRelatedUserID(t *testing.T) {
 
 	e = &Event{AppUserID: "one"}
 	assert.Equal(t, []string{"one"}, e.GetAllRelatedUserID())
+}
+
+func TestEvent_AffectedUserIDs(t *testing.T) {
+	load := func(t *testing.T, name string) Event {
+		t.Helper()
+		data, err := os.ReadFile(filepath.Join("testdata", "webhooks", name+".json"))
+		require.NoError(t, err)
+
+		var webhook WebhookEvent
+		require.NoError(t, json.Unmarshal(data, &webhook))
+
+		return webhook.Event
+	}
+
+	t.Run("transfer fixture", func(t *testing.T) {
+		e := load(t, "transfer")
+		assert.Empty(t, e.GetAllRelatedUserID())
+		assert.Equal(t, []string{
+			"00005A1C-6091-4F81-BE77-F0A83A271AB6",
+			"4BEDB450-8EF2-11E9-B475-0800200C9A66",
+		}, e.AffectedUserIDs())
+	})
+
+	t.Run("purchase redeemed fixture", func(t *testing.T) {
+		e := load(t, "purchase_redeemed")
+		assert.Empty(t, e.GetAllRelatedUserID())
+		assert.Equal(t, []string{
+			"$RCAnonymousID:abc123def4564789ab12345fedcba321",
+			"redeemer-app-user-id",
+		}, e.AffectedUserIDs())
+	})
+
+	t.Run("regular purchase fixture matches GetAllRelatedUserID", func(t *testing.T) {
+		e := load(t, "initial_purchase")
+		assert.NotEmpty(t, e.GetAllRelatedUserID())
+		assert.Equal(t, e.GetAllRelatedUserID(), e.AffectedUserIDs())
+	})
+
+	tests := []struct {
+		name  string
+		event Event
+		want  []string
+	}{
+		{"empty event", Event{}, nil},
+		{"only empty strings", Event{Aliases: []string{""}, TransferredTo: []string{"", ""}}, nil},
+		{
+			"order is stable across fields",
+			Event{
+				AppUserID: "a", OriginalAppUserID: "b", Aliases: []string{"c"},
+				TransferredFrom: []string{"d"}, TransferredTo: []string{"e"},
+				RedeemedFrom: []string{"f"}, RedeemedBy: []string{"g"},
+			},
+			[]string{"a", "b", "c", "d", "e", "f", "g"},
+		},
+		{
+			"duplicates within and across fields",
+			Event{
+				AppUserID: "a", OriginalAppUserID: "a", Aliases: []string{"b", "a", "b"},
+				TransferredFrom: []string{"b", "c"}, TransferredTo: []string{"c", "a"},
+				RedeemedFrom: []string{"d", "d"}, RedeemedBy: []string{"c", "e", ""},
+			},
+			[]string{"a", "b", "c", "d", "e"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.event.AffectedUserIDs())
+		})
+	}
 }

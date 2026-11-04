@@ -132,6 +132,8 @@ func (e *Event) HasEntitlementID(id string) bool {
 }
 
 // GetAllRelatedUserID returns a unique id list of AppUserID, OriginalAppUserID, and Aliases.
+// It does not include transferred_from, transferred_to, redeemed_from, or redeemed_by;
+// use AffectedUserIDs to cover TRANSFER and PURCHASE_REDEEMED events.
 func (e *Event) GetAllRelatedUserID() []string {
 	m := make(map[string]bool)
 	var idList []string
@@ -154,6 +156,41 @@ func (e *Event) GetAllRelatedUserID() []string {
 	}
 
 	return uniqueIDList
+}
+
+// AffectedUserIDs returns every App User ID the event refers to, without duplicates or empty strings.
+// IDs are ordered by first occurrence: AppUserID, OriginalAppUserID, Aliases, TransferredFrom,
+// TransferredTo, RedeemedFrom, and RedeemedBy.
+//
+// TRANSFER events carry the affected users only in transferred_from and transferred_to, and
+// PURCHASE_REDEEMED events carry them in redeemed_from and redeemed_by, so GetAllRelatedUserID
+// returns nothing useful for them. See https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields.
+// The result is nil when the event refers to no user.
+func (e *Event) AffectedUserIDs() []string {
+	groups := [][]string{
+		{e.AppUserID, e.OriginalAppUserID},
+		e.Aliases,
+		e.TransferredFrom,
+		e.TransferredTo,
+		e.RedeemedFrom,
+		e.RedeemedBy,
+	}
+	seen := make(map[string]struct{})
+	var ids []string
+	for _, group := range groups {
+		for _, id := range group {
+			if id == "" {
+				continue
+			}
+			if _, ok := seen[id]; ok {
+				continue
+			}
+			seen[id] = struct{}{}
+			ids = append(ids, id)
+		}
+	}
+
+	return ids
 }
 
 // SubscriberAttributes represents a map of SubscriberAttribute.

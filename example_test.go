@@ -27,6 +27,27 @@ func ExampleWebhookEvent() {
 	// Output: INITIAL_PURCHASE PRODUCTION user_123
 }
 
+func ExampleEvent_AffectedUserIDs() {
+	body := []byte(`{
+		"api_version": "1.0",
+		"event": {
+			"type": "TRANSFER",
+			"transferred_from": ["user_a"],
+			"transferred_to": ["user_b", "user_a"]
+		}
+	}`)
+	var webhook revcatgo.WebhookEvent
+	if err := json.Unmarshal(body, &webhook); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(webhook.Event.GetAllRelatedUserID())
+	fmt.Println(webhook.Event.AffectedUserIDs())
+	// Output:
+	// []
+	// [user_a user_b]
+}
+
 func ExampleVerifyWebhookSignature() {
 	body := []byte(`{"api_version":"1.0","event":{"id":"evt_123"}}`)
 	secret := "webhook-secret"
