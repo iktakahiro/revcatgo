@@ -132,6 +132,10 @@ func (e *Event) HasEntitlementID(id string) bool {
 }
 
 // GetAllRelatedUserID returns a unique id list of AppUserID, OriginalAppUserID, and Aliases.
+// It only collects app_user_id, original_app_user_id, and aliases, which are typically absent on
+// TRANSFER and PURCHASE_REDEEMED events; use AffectedUserIDs to cover transferred_from, transferred_to,
+// redeemed_from, and redeemed_by as well.
+// Unlike AffectedUserIDs, it keeps empty strings found in Aliases.
 func (e *Event) GetAllRelatedUserID() []string {
 	m := make(map[string]bool)
 	var idList []string
@@ -154,6 +158,45 @@ func (e *Event) GetAllRelatedUserID() []string {
 	}
 
 	return uniqueIDList
+}
+
+// AffectedUserIDs returns every App User ID the event refers to, without duplicates or empty strings.
+// IDs are ordered by first occurrence: AppUserID, OriginalAppUserID, Aliases, TransferredFrom,
+// TransferredTo, RedeemedFrom, and RedeemedBy.
+//
+// TRANSFER events carry the affected users only in transferred_from and transferred_to, and
+// PURCHASE_REDEEMED events carry them in redeemed_from and redeemed_by, whereas GetAllRelatedUserID
+// only collects app_user_id, original_app_user_id, and aliases, which are typically absent on those
+// events. See https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields.
+//
+// Unlike GetAllRelatedUserID, which keeps an empty string found in Aliases, AffectedUserIDs drops
+// empty strings from every field, so the two can differ for the same event.
+// The result is nil when the event refers to no user.
+func (e *Event) AffectedUserIDs() []string {
+	groups := [][]string{
+		{e.AppUserID, e.OriginalAppUserID},
+		e.Aliases,
+		e.TransferredFrom,
+		e.TransferredTo,
+		e.RedeemedFrom,
+		e.RedeemedBy,
+	}
+	seen := make(map[string]struct{})
+	var ids []string
+	for _, group := range groups {
+		for _, id := range group {
+			if id == "" {
+				continue
+			}
+			if _, ok := seen[id]; ok {
+				continue
+			}
+			seen[id] = struct{}{}
+			ids = append(ids, id)
+		}
+	}
+
+	return ids
 }
 
 // SubscriberAttributes represents a map of SubscriberAttribute.
