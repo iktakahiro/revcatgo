@@ -23,7 +23,7 @@ go get github.com/iktakahiro/revcatgo@latest
 
 ## Quick start
 
-Decode a webhook payload inside your HTTP handler and branch on the event type or environment using the provided helpers:
+Verify and decode a webhook request inside your HTTP handler, then branch on the event type or environment using the provided helpers:
 
 ```go
 package webhook
@@ -77,9 +77,24 @@ func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 
 ## Verifying webhook signatures
 
-`ParseWebhookRequest(r, webhookSigningSecret, 5*time.Minute)` limits the body size, verifies the signature on the exact request bytes, and decodes the event. A positive tolerance also rejects requests whose signature timestamp is outside the allowed window. If the secret is empty, verification is skipped; authenticate the request another way, such as by checking RevenueCat's configured Authorization header value.
+`ParseWebhookRequest` limits the request body to 1 MiB (`MaxWebhookBodyBytes`), verifies the signature against the exact request bytes, and decodes the payload into `WebhookEvent`. An empty secret returns `ErrWebhookSignatureMissingSecret`. A positive tolerance rejects signatures whose timestamps are outside the allowed window; zero disables the timestamp check.
 
-Alternatively, read a size-limited body, call `VerifyWebhookSignature` on the raw bytes, and then use `json.Unmarshal`.
+For a manual path, read the body with a limit of `MaxWebhookBodyBytes` and reject larger bodies, then verify the raw bytes before decoding:
+
+```go
+err := revcatgo.VerifyWebhookSignature(
+    r.Header.Get(revcatgo.WebhookSignatureHeader), body, webhookSigningSecret, 5*time.Minute,
+)
+if err != nil {
+    return err
+}
+var hook revcatgo.WebhookEvent
+if err := json.Unmarshal(body, &hook); err != nil {
+    return err
+}
+```
+
+If you authenticate only with RevenueCat's configured `Authorization` header, read a size-limited body and use `json.Unmarshal` directly after authenticating the request.
 
 ## Working with Subscriber API v1 responses
 
