@@ -2,11 +2,12 @@
 //
 // # Webhooks
 //
-// Use [VerifyWebhookSignature] with the raw request body before decoding it.
-// A positive tolerance checks the signature timestamp; zero disables the
-// timestamp check.
+// Use [ParseWebhookRequest] to read, verify, and decode an HTTP webhook request.
+// Alternatively, use [VerifyWebhookSignature] with the raw request body before
+// decoding it using [encoding/json]. A positive tolerance checks the signature
+// timestamp; zero disables the timestamp check.
 //
-// Decode a webhook JSON body into [WebhookEvent] using [encoding/json].
+// Webhook JSON bodies decode into [WebhookEvent].
 // Event.Type and Event.Environment provide typed values for the event type and
 // environment; use String to compare them with the corresponding constants and
 // IsKnown to check whether RevenueCat documents the value. Unknown values are

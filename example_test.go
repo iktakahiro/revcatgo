@@ -5,6 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 
 	"github.com/iktakahiro/revcatgo"
 )
@@ -46,6 +49,18 @@ func ExampleEvent_AffectedUserIDs() {
 	// Output:
 	// []
 	// [user_a user_b]
+}
+
+func ExampleParseWebhookRequest() {
+	body := `{"event":{"type":"INITIAL_PURCHASE"}}`
+	r := httptest.NewRequest(http.MethodPost, "/webhook", strings.NewReader(body))
+	// Authenticate the request separately when no signing secret is provided.
+	hook, err := revcatgo.ParseWebhookRequest(r, "", 0)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(hook.Event.Type.String())
+	// Output: INITIAL_PURCHASE
 }
 
 func ExampleVerifyWebhookSignature() {
