@@ -19,11 +19,10 @@ var (
 	ErrInvalidWebhookPayload = errors.New("invalid RevenueCat webhook payload")
 )
 
-// ParseWebhookRequest reads and decodes a RevenueCat webhook request, limiting its body
-// to MaxWebhookBodyBytes. If secret is non-empty, it verifies the signature before
-// decoding; tolerance has the same meaning as in VerifyWebhookSignature. If secret is
-// empty, signature verification is skipped and callers must authenticate the request
-// another way, such as by checking RevenueCat's configured Authorization header value.
+// ParseWebhookRequest reads, verifies, and decodes a RevenueCat webhook request,
+// limiting its body to MaxWebhookBodyBytes. An empty secret returns
+// ErrWebhookSignatureMissingSecret. Tolerance has the same meaning as in
+// VerifyWebhookSignature.
 // The caller remains responsible for closing the request body.
 //
 // See https://www.revenuecat.com/docs/integrations/webhooks and
@@ -33,6 +32,10 @@ func ParseWebhookRequest(r *http.Request, secret string, tolerance time.Duration
 		return nil, errors.New("RevenueCat webhook request and body must not be nil")
 	}
 
+	if secret == "" {
+		return nil, ErrWebhookSignatureMissingSecret
+	}
+
 	body, err := io.ReadAll(io.LimitReader(r.Body, MaxWebhookBodyBytes+1))
 	if err != nil {
 		return nil, fmt.Errorf("read RevenueCat webhook body: %w", err)
@@ -40,10 +43,8 @@ func ParseWebhookRequest(r *http.Request, secret string, tolerance time.Duration
 	if len(body) > MaxWebhookBodyBytes {
 		return nil, ErrWebhookBodyTooLarge
 	}
-	if secret != "" {
-		if err := VerifyWebhookSignature(r.Header.Get(WebhookSignatureHeader), body, secret, tolerance); err != nil {
-			return nil, fmt.Errorf("verify RevenueCat webhook signature: %w", err)
-		}
+	if err := VerifyWebhookSignature(r.Header.Get(WebhookSignatureHeader), body, secret, tolerance); err != nil {
+		return nil, fmt.Errorf("verify RevenueCat webhook signature: %w", err)
 	}
 
 	var event WebhookEvent
