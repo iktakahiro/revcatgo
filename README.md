@@ -23,13 +23,12 @@ go get github.com/iktakahiro/revcatgo@latest
 
 ## Quick start
 
-Decode a webhook payload inside your HTTP handler and branch on the event type or environment using the provided helpers:
+Verify and decode a webhook request inside your HTTP handler, then branch on the event type or environment using the provided helpers:
 
 ```go
 package webhook
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -37,9 +36,12 @@ import (
 	"github.com/iktakahiro/revcatgo"
 )
 
+// Set webhookSigningSecret from your configuration.
+var webhookSigningSecret = "your-signing-secret"
+
 func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
-	var hook revcatgo.WebhookEvent
-	if err := json.NewDecoder(r.Body).Decode(&hook); err != nil {
+	hook, err := revcatgo.ParseWebhookRequest(r, webhookSigningSecret, 5*time.Minute)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -75,32 +77,24 @@ func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 
 ## Verifying webhook signatures
 
-RevenueCat signs the exact request bytes, so verify the raw body before unmarshalling it. A positive tolerance also rejects replayed requests whose timestamp is outside the allowed window.
+`ParseWebhookRequest` limits the request body to 1 MiB (`MaxWebhookBodyBytes`), verifies the signature against the exact request bytes, and decodes the payload into `WebhookEvent`. An empty secret returns `ErrWebhookSignatureMissingSecret`. A positive tolerance rejects signatures whose timestamps are outside the allowed window; zero disables the timestamp check.
+
+For a manual path, read the body with a limit of `MaxWebhookBodyBytes` and reject larger bodies, then verify the raw bytes before decoding:
 
 ```go
-body, err := io.ReadAll(r.Body)
-if err != nil {
-	http.Error(w, err.Error(), http.StatusBadRequest)
-	return
-}
-
-err = revcatgo.VerifyWebhookSignature(
-	r.Header.Get(revcatgo.WebhookSignatureHeader),
-	body,
-	webhookSigningSecret,
-	5*time.Minute,
+err := revcatgo.VerifyWebhookSignature(
+    r.Header.Get(revcatgo.WebhookSignatureHeader), body, webhookSigningSecret, 5*time.Minute,
 )
 if err != nil {
-	http.Error(w, "invalid RevenueCat signature", http.StatusUnauthorized)
-	return
+    return err
 }
-
 var hook revcatgo.WebhookEvent
 if err := json.Unmarshal(body, &hook); err != nil {
-	http.Error(w, err.Error(), http.StatusBadRequest)
-	return
+    return err
 }
 ```
+
+If you authenticate only with RevenueCat's configured `Authorization` header, read a size-limited body and use `json.Unmarshal` directly after authenticating the request.
 
 ## Working with Subscriber API v1 responses
 
