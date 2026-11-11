@@ -29,7 +29,6 @@ Decode a webhook payload inside your HTTP handler and branch on the event type o
 package webhook
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -37,9 +36,12 @@ import (
 	"github.com/iktakahiro/revcatgo"
 )
 
+// Set webhookSigningSecret from your configuration.
+var webhookSigningSecret = "your-signing-secret"
+
 func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
-	var hook revcatgo.WebhookEvent
-	if err := json.NewDecoder(r.Body).Decode(&hook); err != nil {
+	hook, err := revcatgo.ParseWebhookRequest(r, webhookSigningSecret, 5*time.Minute)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -75,32 +77,9 @@ func HandleRevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 
 ## Verifying webhook signatures
 
-RevenueCat signs the exact request bytes, so verify the raw body before unmarshalling it. A positive tolerance also rejects replayed requests whose timestamp is outside the allowed window.
+`ParseWebhookRequest(r, webhookSigningSecret, 5*time.Minute)` limits the body size, verifies the signature on the exact request bytes, and decodes the event. A positive tolerance also rejects requests whose signature timestamp is outside the allowed window. If the secret is empty, verification is skipped; authenticate the request another way, such as by checking RevenueCat's configured Authorization header value.
 
-```go
-body, err := io.ReadAll(r.Body)
-if err != nil {
-	http.Error(w, err.Error(), http.StatusBadRequest)
-	return
-}
-
-err = revcatgo.VerifyWebhookSignature(
-	r.Header.Get(revcatgo.WebhookSignatureHeader),
-	body,
-	webhookSigningSecret,
-	5*time.Minute,
-)
-if err != nil {
-	http.Error(w, "invalid RevenueCat signature", http.StatusUnauthorized)
-	return
-}
-
-var hook revcatgo.WebhookEvent
-if err := json.Unmarshal(body, &hook); err != nil {
-	http.Error(w, err.Error(), http.StatusBadRequest)
-	return
-}
-```
+Alternatively, read a size-limited body, call `VerifyWebhookSignature` on the raw bytes, and then use `json.Unmarshal`.
 
 ## Working with Subscriber API v1 responses
 
